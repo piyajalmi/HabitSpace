@@ -11,6 +11,7 @@ const habit = await Habit.create({
   type,
 });
 
+
     res.status(201).json(habit);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -20,9 +21,7 @@ const habit = await Habit.create({
 // 2️⃣ Get all habits for a user
 const getHabits = async (req, res) => {
   try {
-   const habits = await Habit.find({ userId: req.user.id });
-
-
+    const habits = await Habit.find({ userId: req.user.id });
     res.json(habits);
   } catch (error) {
     res.status(500).json({ message: error.message });

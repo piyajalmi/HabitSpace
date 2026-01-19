@@ -16,6 +16,8 @@ if (!strongPasswordRegex.test(password)) {
   });
 }
 
+
+
 // Email validation
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -24,7 +26,6 @@ if (!emailRegex.test(email)) {
     message: "Please enter a valid email address",
   });
 }
-
 
     // check existing user
     const userExists = await User.findOne({ email });
