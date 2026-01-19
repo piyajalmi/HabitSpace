@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
+const habitRoutes = require("./routes/habitRoutes");
 
 
 const connectDB = require("./config/db");
@@ -18,6 +19,7 @@ connectDB();
 app.use(cors()); 
 app.use(helmet());             // ✅ ADD THIS
 app.use(express.json());
+app.use("/api/habits", habitRoutes);
 
 
 const authLimiter = rateLimit({
