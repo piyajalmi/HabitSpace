@@ -1,4 +1,4 @@
-#root {
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -27,6 +27,7 @@
   }
 }
 
+
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
@@ -39,4 +40,121 @@
 
 .read-the-docs {
   color: #888;
+} */
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', system-ui, sans-serif;
+  line-height: 1.1;
+}
+
+/* ===== Auth Page ===== */
+
+.auth-page {
+  display: flex;
+  height: 99.9vh;
+  background: #A8B0C1;
+}
+
+/* Left image section */
+.auth-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.auth-right,
+.auth-card,
+.auth-input,
+.auth-btn {
+  pointer-events: auto;
+}
+
+.room-image {
+  width: auto;
+  max-width: 670px;
+  pointer-events: none;
+}
+
+/* Right card section */
+.auth-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(135deg, #CBADA5, #B8BFCD);
+  padding: 40px;
+  width: 340px;
+  border-radius: 22px;
+  text-align: center;
+  box-shadow: 0 20px 40px #605d64;
+}
+
+/* Text */
+.auth-title {
+  font-size: 45px;
+  font-weight: 600;
+  color: #363945;
+ 
+}
+
+.auth-subtitle {
+  font-size: 20px;
+  color: #2C2726;
+  margin-bottom: 25px;
+}
+
+/* Inputs */
+.auth-input {
+  position: relative;
+  z-index: 3;
+  background: linear-gradient(135deg, #E9FBEB, #FDE0F2);
+  width: 90%;
+  padding: 12px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  border: 1px #ddd;
+  box-shadow: 0 20px 40px #5f5c65;
+  outline: none;
+  color: #3b4252
+}
+
+/* Buttons */
+.auth-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 18px;
+  border: none;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.auth-btn.primary {
+  background: #707E99;
+  color: white;
+}
+
+.auth-btn.secondary {
+  background: #e6e1ff;
+  color: #707E99;
+}
+
+/* Message */
+.auth-message {
+  margin-top: 14px;
+  font-size: 13px;
+  color: #333;
 }
