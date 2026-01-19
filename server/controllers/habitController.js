@@ -4,12 +4,12 @@ const calculateHabitState = require("../utils/stateCalculator");
 // 1️⃣ Create a habit
 const createHabit = async (req, res) => {
   try {
-    const { userId, type } = req.body;
+    const { type } = req.body;
 
-    const habit = await Habit.create({
-      userId,
-      type,
-    });
+const habit = await Habit.create({
+  userId: req.user.id,
+  type,
+});
 
     res.status(201).json(habit);
   } catch (error) {
@@ -20,9 +20,8 @@ const createHabit = async (req, res) => {
 // 2️⃣ Get all habits for a user
 const getHabits = async (req, res) => {
   try {
-    const { userId } = req.query;
+   const habits = await Habit.find({ userId: req.user.id });
 
-    const habits = await Habit.find({ userId });
 
     res.json(habits);
   } catch (error) {
