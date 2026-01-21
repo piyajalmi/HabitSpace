@@ -18,6 +18,32 @@ const Room = () => {
   const lampMainIntensity = [0.15, 0.3, 0.55, 0.85, 1.1];
   const bulbCoreIntensity = [0.02, 0.05, 0.08, 0.12, 0.18];
 
+  useEffect(() => {
+  const checkUser = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/auth");
+      return;
+    }
+
+    const res = await fetch("http://localhost:5000/api/auth/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (!data.isVerified) {
+      alert("Please verify your email first");
+      navigate("/auth");
+    }
+  };
+
+  checkUser();
+}, []);
+
   // 🔄 Apply state → lighting
   useEffect(() => {
     if (lampMainRef.current) {
