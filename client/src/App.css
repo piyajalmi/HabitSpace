@@ -78,8 +78,8 @@ body,
 }
 
 .room-image {
-  width: auto;
-  max-width: 670px;
+  width: 80%;
+  max-width: 800px;
   pointer-events: none;
 }
 
@@ -94,9 +94,9 @@ body,
 .auth-card {
   position: relative;
   z-index: 2;
-  background: linear-gradient(135deg, #CBADA5, #B8BFCD);
+  background: linear-gradient(135deg, #CBADA5, #ace1ba);
   padding: 40px;
-  width: 340px;
+  width: 600px;
   border-radius: 22px;
   text-align: center;
   box-shadow: 0 20px 40px #605d64;
@@ -107,7 +107,7 @@ body,
   font-size: 45px;
   font-weight: 600;
   color: #363945;
- 
+
 }
 
 .auth-subtitle {
