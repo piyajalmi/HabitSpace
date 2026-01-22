@@ -8,8 +8,8 @@ const {
   completeHabit,
 } = require("../controllers/habitController");
 
-router.post("/", createHabit);              // create habit
-router.get("/", getHabits);                 // get all habits
-router.post("/:id/complete", completeHabit); // mark habit completed
+router.post("/", protect, createHabit);              // create habit
+router.get("/", protect, getHabits);                 // get all habits
+router.post("/:id/complete",protect, completeHabit); // mark habit completed
 
 module.exports = router;

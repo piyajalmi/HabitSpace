@@ -1,5 +1,6 @@
 const Habit = require("../models/Habit");
 const calculateHabitState = require("../utils/stateCalculator");
+const updateDailySummary = require("../utils/updateDailySummary");
 
 // 1️⃣ Create a habit
 const createHabit = async (req, res) => {
@@ -63,6 +64,26 @@ const completeHabit = async (req, res) => {
     habit.currentState = calculateHabitState(habit);
 
     await habit.save();
+
+    const userId = req.user.id;
+
+const totalHabits = await Habit.countDocuments({ userId });
+const startOfToday = new Date();
+startOfToday.setHours(0, 0, 0, 0);
+
+const endOfToday = new Date();
+endOfToday.setHours(23, 59, 59, 999);
+
+const completedHabits = await Habit.countDocuments({
+  userId,
+  lastCompletedDate: {
+    $gte: startOfToday,
+    $lte: endOfToday,
+  },
+});
+
+
+await updateDailySummary(userId, totalHabits, completedHabits);
 
     res.json(habit);
   } catch (error) {
