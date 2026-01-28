@@ -15,7 +15,7 @@ import ObjectModal from "../components/ObjectModal";
 
 const Room = () => {
   // 🔒 TEMP manual testing (0–4)
-  const roomState = 3;
+  const roomState = 0;
   const userName = localStorage.getItem("userName") || "Friend";
 
   // 🔦 Light refs
