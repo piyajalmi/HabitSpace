@@ -8,7 +8,7 @@ import Plant from "../components/Plant";
 
 const Room = () => {
   // 🔒 TEMP manual testing (0–4)
-  const roomState = 3;
+  const roomState = 2;
   const userName = localStorage.getItem("userName") || "Friend";
 
   // 🔦 Light refs
