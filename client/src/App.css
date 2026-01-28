@@ -68,11 +68,11 @@ body,
 
 /* Left image section */
 .auth-left {
-  flex: 1;
+  flex: 1.4;
+  /* more space */
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
 }
 
 .auth-right,
@@ -83,11 +83,9 @@ body,
 }
 
 .room-image {
-   width: 100%;
+  width: 100%;
+  max-width: 650px;
   height: auto;
-  max-height: 60vh;
-  object-fit: contain;
-  pointer-events: none;
 }
 /* default = mobile */
 .room {
