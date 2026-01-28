@@ -62,9 +62,9 @@ const Room = () => {
       <Canvas
         /* ❗ CAMERA SETTINGS — UNTOUCHED */
         camera={{
-          position: [0.9, 1.1, 2],
-          fov: 45,
-          rotation: [-0.05, 0.6, 0],
+          position: [1.5, 1.1, 2.5],
+        fov: 50,
+          rotation: [0, 0.65, 0],
         }}
         gl={{
           physicallyCorrectLights: true,
