@@ -1,7 +1,7 @@
 export const PLANT_MODELS = {
-  flourishing: "/models/plant/plant_flourishing.glb",
-  active: "/models/plant/plant_active.glb",
-  neutral: "/models/plant/plant_neutral.glb",
-  missed: "/models/plant/plant_missed.glb",
-  abandoned: "/models/plant/plant_abandoned.glb",
+  flourishing: "/models/plant_flourishing.glb",
+  active: "/models/plant_active.glb",
+  neutral: "/models/plant_neutral.glb",
+  missed: "/models/plant_missed.glb",
+  abandoned: "/models/plant_abandoned.glb",
 };
