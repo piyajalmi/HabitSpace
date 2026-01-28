@@ -1,20 +1,84 @@
+// import { useGLTF } from "@react-three/drei";
+// import { PLANT_MODELS } from "../utils/modelMap";
+// import { ROOM_STATE_CONFIG } from "../utils/roomState";
+
+// const Plant = ({ roomState }) => {
+//   const plantStateName = ROOM_STATE_CONFIG[roomState]?.plant;
+//   const modelPath = PLANT_MODELS[plantStateName];
+
+//   console.log("RoomState:", roomState);
+//   console.log("Plant state:", plantStateName);
+//   console.log("Model path:", modelPath);
+
+//   if (!modelPath) return null; // ⛔ prevents crash
+
+//   const { scene } = useGLTF(modelPath);
+
+//   return <primitive object={scene} position={[0, -0.45, 0]} />;
+// };
+
+// export default Plant;
+
 import { useGLTF } from "@react-three/drei";
+import { useState, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 import { PLANT_MODELS } from "../utils/modelMap";
 import { ROOM_STATE_CONFIG } from "../utils/roomState";
 
-const Plant = ({ roomState }) => {
-  const plantStateName = ROOM_STATE_CONFIG[roomState]?.plant;
-  const modelPath = PLANT_MODELS[plantStateName];
+const Plant = ({ roomState, onClick }) => {
+  const plantState = ROOM_STATE_CONFIG[roomState]?.plant;
+  const path = PLANT_MODELS[plantState];
+  if (!path) return null;
 
-  console.log("RoomState:", roomState);
-  console.log("Plant state:", plantStateName);
-  console.log("Model path:", modelPath);
+  const { scene } = useGLTF(path);
 
-  if (!modelPath) return null; // ⛔ prevents crash
+  const groupRef = useRef();
+  const modelRef = useRef();
 
-  const { scene } = useGLTF(modelPath);
+  const [hovered, setHovered] = useState(false);
 
-  return <primitive object={scene} position={[0, -0.45, 0]} />;
+  // 🌱 Gentle pulse animation
+  useFrame(({ clock }) => {
+    if (!modelRef.current) return;
+
+    if (hovered) {
+      const pulse = 1 + Math.sin(clock.elapsedTime * 2) * 0.03;
+      modelRef.current.scale.set(pulse, pulse, pulse);
+    } else {
+      modelRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+    }
+  });
+
+  // ✨ Glow on hover
+  scene.traverse((child) => {
+    if (child.isMesh) {
+      child.material.emissive = new THREE.Color("#9cff9c"); // soft green
+      child.material.emissiveIntensity = hovered ? 0.15 : 0;
+    }
+  });
+
+  return (
+    <group
+      ref={groupRef}
+      position={[0, -0.45, 0]}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+        document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={() => {
+        setHovered(false);
+        document.body.style.cursor = "default";
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.("plant");
+      }}
+    >
+      <primitive ref={modelRef} object={scene} />
+    </group>
+  );
 };
 
 export default Plant;
