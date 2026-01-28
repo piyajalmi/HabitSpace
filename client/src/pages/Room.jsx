@@ -5,10 +5,13 @@ import RoomModel from "../components/RoomModel";
 import * as THREE from "three";
 import WelcomeToast from "../components/WelcomeToast";
 import Plant from "../components/Plant";  
+import Lamp from "../components/Lamp";
+import WindowModel from "../components/Window";
+import Bookshelf from "../components/Bookshelf";
 
 const Room = () => {
   // 🔒 TEMP manual testing (0–4)
-  const roomState = 2;
+  const roomState = 3;
   const userName = localStorage.getItem("userName") || "Friend";
 
   // 🔦 Light refs
@@ -77,6 +80,9 @@ const Room = () => {
       >
         <RoomModel />
   <Plant roomState={roomState} />
+  <Lamp roomState={roomState} />
+  <WindowModel roomState={roomState} />
+<Bookshelf roomState={roomState} />
         {/* 🌈 Postprocessing */}
         <EffectComposer>
           <Bloom
