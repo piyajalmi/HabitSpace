@@ -12,14 +12,14 @@ export const ROOM_STATE_CONFIG = {
   0: {
     name: "abandoned",
     lamp: "off",
-    plant: "dead",
+    plant: "abandoned",
     bookshelf: "empty",
     window: "closed",
   },
   1: {
     name: "missed",
     lamp: "dim",
-    plant: "dry",
+    plant: "missed",
     bookshelf: "few",
     window: "foggy",
   },
@@ -33,14 +33,14 @@ export const ROOM_STATE_CONFIG = {
   3: {
     name: "active",
     lamp: "bright",
-    plant: "healthy",
+    plant: "active",
     bookshelf: "full",
     window: "open",
   },
   4: {
     name: "flourishing",
     lamp: "glow",
-    plant: "lush",
+    plant: "flourishing",
     bookshelf: "overflow",
     window: "sunlit",
   },
