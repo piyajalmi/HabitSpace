@@ -1,8 +1,6 @@
 import { useGLTF } from "@react-three/drei";
 
 
-
-
 const RoomModel = () => {
   const { scene } = useGLTF("/models/room.glb");
 

@@ -109,7 +109,7 @@ const Room = () => {
         <pointLight position={[0.5, 1.2, 0]} intensity={0.25} />
 
         {/* 🧱 Base room only */}
-        <RoomModel />
+        
       </Canvas>
     </div>
   );
