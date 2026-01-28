@@ -112,7 +112,7 @@ body,
 
 /* Right card section */
 .auth-right {
-  flex: 1;
+  flex: 1.5;
   display: flex;
   align-items: center;
   justify-content: center;
