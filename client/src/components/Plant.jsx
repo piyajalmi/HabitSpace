@@ -1,22 +1,12 @@
 import { useGLTF } from "@react-three/drei";
-import { useEffect } from "react";
+import { PLANT_MODELS } from "../utils/modelMap";
 import { ROOM_STATE_CONFIG } from "../utils/roomState";
 
-const Plant = ({ roomState, anchor }) => {
+const Plant = ({ roomState }) => {
   const plantStateName = ROOM_STATE_CONFIG[roomState].plant;
-  // e.g. "neutral", "missed", etc.
+  const { scene } = useGLTF(PLANT_MODELS[plantStateName]);
 
-  const { scene } = useGLTF(`/src/assets/models/plant_${plantStateName}.glb`);
-
-  useEffect(() => {
-    if (!anchor?.current) return;
-
-    // attach plant to anchor
-    anchor.current.clear();
-    anchor.current.add(scene);
-  }, [scene, anchor]);
-
-  return null;
+  return <primitive object={scene} position={[0, -0.45, 0]} />;
 };
 
 export default Plant;

@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import RoomModel from "../components/RoomModel";
 import * as THREE from "three";
 import WelcomeToast from "../components/WelcomeToast";
+import Plant from "../components/Plant";  
 
 const Room = () => {
   // 🔒 TEMP manual testing (0–4)
@@ -74,6 +75,8 @@ const Room = () => {
         }}
         style={{ width: "100%", height: "100%", display: "block" }}
       >
+        <RoomModel />
+  <Plant roomState={roomState} />
         {/* 🌈 Postprocessing */}
         <EffectComposer>
           <Bloom
