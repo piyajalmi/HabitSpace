@@ -67,7 +67,7 @@ const Room = () => {
   const fetchHabits = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/habits/my-habits", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/habits/my-habits`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
