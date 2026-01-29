@@ -15,6 +15,8 @@ import { useNavigate } from "react-router-dom";
 //modal/overlay
 import { useState } from "react";
 import ObjectModal from "../components/ObjectModal";
+//Floating button
+import FloatingMenu from "../components/FloatingMenu";
 
 const Room = () => {
   // 🔒 TEMP manual testing (0–4)
