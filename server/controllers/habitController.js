@@ -1,17 +1,15 @@
 const Habit = require("../models/Habit");
 const calculateHabitState = require("../utils/stateCalculator");
-const updateDailySummary = require("../utils/updateDailySummary");
 
 // 1️⃣ Create a habit
 const createHabit = async (req, res) => {
   try {
     const { type } = req.body;
 
-const habit = await Habit.create({
-  userId: req.user.id,
-  type,
-});
-
+    const habit = await Habit.create({
+      userId: req.user._id,
+      objectType: type, // ✅ unified field
+    });
 
     res.status(201).json(habit);
   } catch (error) {
@@ -22,7 +20,7 @@ const habit = await Habit.create({
 // 2️⃣ Get all habits for a user
 const getHabits = async (req, res) => {
   try {
-    const habits = await Habit.find({ userId: req.user.id });
+    const habits = await Habit.find({ userId: req.user._id });
     res.json(habits);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -32,62 +30,35 @@ const getHabits = async (req, res) => {
 // 3️⃣ Mark habit as completed
 const completeHabit = async (req, res) => {
   try {
-    const habit = await Habit.findById(req.params.id);
+    const { type } = req.params;
+
+    const habit = await Habit.findOne({
+      userId: req.user._id,
+      objectType: type,
+    });
 
     if (!habit) {
       return res.status(404).json({ message: "Habit not found" });
     }
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const last = habit.lastCompletedDate;
 
-    // If completed yesterday, increment streak
-    if (habit.lastCompletedDate) {
-      const lastDate = new Date(habit.lastCompletedDate);
-      lastDate.setHours(0, 0, 0, 0);
+    const diffDays = last
+      ? Math.floor((today - last) / (1000 * 60 * 60 * 24))
+      : null;
 
-      const diffDays =
-        (today - lastDate) / (1000 * 60 * 60 * 24);
-
-      if (diffDays === 1) {
-        habit.consecutiveDays += 1;
-      } else if (diffDays > 1) {
-        habit.consecutiveDays = 1;
-      }
-    } else {
-      habit.consecutiveDays = 1;
-    }
+    if (diffDays === 1) habit.consecutiveDays += 1;
+    else if (diffDays > 1) habit.consecutiveDays = 1;
+    else if (diffDays === 0) return res.json(habit);
 
     habit.lastCompletedDate = today;
-
-    // 🔑 Recalculate state
-    habit.currentState = calculateHabitState(habit);
+    habit.currentState = calculateHabitState(habit); // ✅ update state
 
     await habit.save();
-
-    const userId = req.user.id;
-
-const totalHabits = await Habit.countDocuments({ userId });
-const startOfToday = new Date();
-startOfToday.setHours(0, 0, 0, 0);
-
-const endOfToday = new Date();
-endOfToday.setHours(23, 59, 59, 999);
-
-const completedHabits = await Habit.countDocuments({
-  userId,
-  lastCompletedDate: {
-    $gte: startOfToday,
-    $lte: endOfToday,
-  },
-});
-
-
-await updateDailySummary(userId, totalHabits, completedHabits);
-
     res.json(habit);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ message: "Error completing habit" });
   }
 };
 

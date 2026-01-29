@@ -9,6 +9,11 @@ const habitSchema = new mongoose.Schema(
       required: true,
     },
 
+    habitName: {
+      type: String,
+      default: "",
+    },
+
     // What object this habit represents in the room
     type: {
       type: String,
@@ -37,7 +42,7 @@ const habitSchema = new mongoose.Schema(
   },
   {
     timestamps: true, // adds createdAt & updatedAt
-  }
+  },
 );
 
 module.exports = mongoose.model("Habit", habitSchema);

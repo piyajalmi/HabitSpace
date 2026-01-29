@@ -15,7 +15,7 @@ import ObjectModal from "../components/ObjectModal";
 
 const Room = () => {
   // 🔒 TEMP manual testing (0–4)
-  const roomState = 0;
+  const roomState = 3;
   const userName = localStorage.getItem("userName") || "Friend";
 
   // 🔦 Light refs
@@ -37,6 +37,8 @@ const Room = () => {
   const closeModal = () => {
     setSelectedObject(null);
   };
+
+  const [habits, setHabits] = useState([]);
 
   //removeable testing
 
@@ -77,11 +79,27 @@ const Room = () => {
     }
   }, [roomState]);
 
+  const fetchHabits = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        "https://habitspace.onrender.com/api/habits/my-habits",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      const data = await res.json();
+      setHabits(data);
+    } catch (err) {
+      console.error("Failed to fetch habits", err);
+    }
+  };
+
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <WelcomeToast userName={userName} roomState={roomState} />
+
       <Canvas
-        /* ❗ CAMERA SETTINGS — UNTOUCHED */
         camera={{
           position: [1.5, 1.1, 2.5],
           fov: 50,
@@ -97,18 +115,12 @@ const Room = () => {
       >
         <SceneBackground roomState={roomState} />
         <RoomModel />
-        {/* <Plant roomState={roomState} onClick={handleObjectClick} /> */}
 
         <Plant roomState={roomState} onClick={handleObjectClick} />
         <Lamp roomState={roomState} onClick={handleObjectClick} />
         <WindowModel roomState={roomState} onClick={handleObjectClick} />
         <Bookshelf roomState={roomState} onClick={handleObjectClick} />
 
-        {/* <Plant roomState={roomState} /> original piece if anything goes wrong update this*/}
-        {/* <Lamp roomState={roomState} />
-        <WindowModel roomState={roomState} />
-        <Bookshelf roomState={roomState} /> */}
-        {/* 🌈 Postprocessing */}
         <EffectComposer>
           <Bloom
             intensity={0.15}
@@ -120,28 +132,9 @@ const Room = () => {
         <ambientLight intensity={0.25} />
         <directionalLight position={[2, 4, 2]} intensity={0.9} />
         <directionalLight position={[-1, 2, 2]} intensity={0.35} />
-
-        <pointLight
-          ref={lampMainRef}
-          position={[-1.2, 1.6, 0.8]}
-          distance={2.3}
-          decay={2}
-          color="#ffd9a6"
-        />
-
-        <pointLight
-          ref={bulbCoreRef}
-          position={[-0.85, 1.75, 0.95]}
-          distance={0.6}
-          decay={2}
-          color="#ffdca8"
-        />
-
-        <pointLight position={[0.5, 1.2, 0]} intensity={0.25} />
-
-        {/* 🧱 Base room only */}
       </Canvas>
-      {/* MODAL OVERLAY AFTER CLICKING */}
+
+      {/* ✅ ONLY ONE MODAL, CORRECTLY PASSED */}
       {selectedObject && (
         <ObjectModal object={selectedObject} onClose={closeModal} />
       )}
