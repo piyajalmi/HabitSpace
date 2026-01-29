@@ -32,6 +32,7 @@ const Plant = ({ roomState, onClick }) => {
   if (!path) return null;
 
   const { scene } = useGLTF(path);
+  const clonedScene = scene.clone(true);
 
   const groupRef = useRef();
   const modelRef = useRef();
@@ -73,10 +74,10 @@ const Plant = ({ roomState, onClick }) => {
       }}
       onClick={(e) => {
         e.stopPropagation();
-        onClick?.("plant");
+        onClick("plant");
       }}
     >
-      <primitive ref={modelRef} object={scene} />
+      <primitive ref={modelRef} object={clonedScene} />
     </group>
   );
 };
