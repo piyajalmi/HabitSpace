@@ -21,7 +21,7 @@ startNotificationScheduler();
 
 
 // Middleware
-app.use(cors()); 
+
 app.use(helmet());             // ✅ ADD THIS
 app.use(express.json());
 app.use("/api/habits", habitRoutes);
