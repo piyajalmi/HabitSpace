@@ -4,12 +4,13 @@ const calculateHabitState = require("../utils/stateCalculator");
 // 1️⃣ Create a habit
 const createHabit = async (req, res) => {
   try {
-    const { type } = req.body;
+   const { type, objectType } = req.body;
 
     const habit = await Habit.create({
       userId: req.user._id,
       objectType: type, // ✅ unified field
     });
+
 
     res.status(201).json(habit);
   } catch (error) {

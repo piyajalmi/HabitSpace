@@ -15,6 +15,7 @@ const habitSchema = new mongoose.Schema(
     },
 
     // What object this habit represents in the room
+    // What object this habit controls in the room
     type: {
       type: String,
       enum: ["plant", "lamp", "window", "bookshelf"],
