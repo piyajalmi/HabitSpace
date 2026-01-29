@@ -25,6 +25,8 @@ const userSchema = new mongoose.Schema(
     verificationToken: {
       type: String,
     },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   { timestamps: true }
 );
