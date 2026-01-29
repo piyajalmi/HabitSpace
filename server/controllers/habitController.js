@@ -5,11 +5,12 @@ const updateDailySummary = require("../utils/updateDailySummary");
 // 1️⃣ Create a habit
 const createHabit = async (req, res) => {
   try {
-    const { type } = req.body;
+   const { type, objectType } = req.body;
 
 const habit = await Habit.create({
   userId: req.user.id,
   type,
+  objectType, // NEW
 });
 
 
