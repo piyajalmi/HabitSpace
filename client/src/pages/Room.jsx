@@ -15,10 +15,12 @@ import { useNavigate } from "react-router-dom";
 //modal/overlay
 import { useState } from "react";
 import ObjectModal from "../components/ObjectModal";
+//Floating button
+import FloatingMenu from "../components/FloatingMenu";
 
 const Room = () => {
   // 🔒 TEMP manual testing (0–4)
-  const roomState = 0;
+  const roomState = 4;
   const userName = localStorage.getItem("userName") || "Friend";
   const navigate = useNavigate();
 
@@ -41,6 +43,12 @@ const Room = () => {
 
   const closeModal = () => {
     setSelectedObject(null);
+  };
+
+  const [habits, setHabits] = useState([]);
+
+  const resetRoom = () => {
+    console.log("Room reset (frontend only for now)");
   };
 
   //removeable testing
@@ -161,6 +169,11 @@ const Room = () => {
         <ambientLight intensity={0.25} />
         <directionalLight position={[2, 4, 2]} intensity={0.9} />
         <directionalLight position={[-1, 2, 2]} intensity={0.35} />
+      </Canvas>
+      <FloatingMenu
+        onPause={() => alert("Habits paused (feature coming soon)")}
+        onReset={() => alert("Room reset (connect to backend later)")}
+      />
 
         <pointLight
           ref={lampMainRef}
