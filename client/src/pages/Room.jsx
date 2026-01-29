@@ -9,6 +9,10 @@ import Lamp from "../components/Lamp";
 import WindowModel from "../components/Window";
 import Bookshelf from "../components/Bookshelf";
 import SceneBackground from "../components/SceneBackground";
+import { getObjectState } from "../utils/objectStateCalculator";
+import { useNavigate } from "react-router-dom";
+
+
 //modal/overlay
 import { useState } from "react";
 import ObjectModal from "../components/ObjectModal";
@@ -17,6 +21,8 @@ const Room = () => {
   // 🔒 TEMP manual testing (0–4)
   const roomState = 0;
   const userName = localStorage.getItem("userName") || "Friend";
+  const navigate = useNavigate();
+
 
   // 🔦 Light refs
   const lampMainRef = useRef();
@@ -28,6 +34,8 @@ const Room = () => {
 
   // removeable OBJECT CLICKING AND HOVERING AND OVERLAY APPEARING
   const [selectedObject, setSelectedObject] = useState(null);
+  const [habits, setHabits] = useState([]);
+
 
   // ✅ SINGLE click handler (this is the only one)
   const handleObjectClick = (object) => {
@@ -66,6 +74,28 @@ const Room = () => {
     checkUser();
   }, []);
 
+  useEffect(() => {
+  const fetchHabits = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5000/api/habits/my-habits", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setHabits(data);
+    } catch (err) {
+      console.error("Failed to fetch habits", err);
+    }
+  };
+
+  fetchHabits();
+}, []);
+//testing to see habits from backend
+useEffect(() => {
+  console.log("HABITS FROM BACKEND:", habits);
+}, [habits]);
+
+
   // 🔄 Apply state → lighting
   useEffect(() => {
     if (lampMainRef.current) {
@@ -76,6 +106,18 @@ const Room = () => {
       bulbCoreRef.current.intensity = bulbCoreIntensity[roomState];
     }
   }, [roomState]);
+
+  // 🔄 Assign habits to room objects
+const plantHabit = habits.find(h => h.type === "plant");
+const lampHabit = habits.find(h => h.type === "lamp");
+const windowHabit = habits.find(h => h.type === "window");
+const bookshelfHabit = habits.find(h => h.type === "bookshelf");
+
+// Convert habit → visual state (0–4)
+const plantState = getObjectState(plantHabit);
+const lampState = getObjectState(lampHabit);
+const windowState = getObjectState(windowHabit);
+const bookshelfState = getObjectState(bookshelfHabit);
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -99,10 +141,11 @@ const Room = () => {
         <RoomModel />
         {/* <Plant roomState={roomState} onClick={handleObjectClick} /> */}
 
-        <Plant roomState={roomState} onClick={handleObjectClick} />
-        <Lamp roomState={roomState} onClick={handleObjectClick} />
-        <WindowModel roomState={roomState} onClick={handleObjectClick} />
-        <Bookshelf roomState={roomState} onClick={handleObjectClick} />
+        <Plant roomState={plantState} onClick={handleObjectClick} />
+<Lamp roomState={lampState} onClick={handleObjectClick} />
+<WindowModel roomState={windowState} onClick={handleObjectClick} />
+<Bookshelf roomState={bookshelfState} onClick={handleObjectClick} />
+
 
         {/* <Plant roomState={roomState} /> original piece if anything goes wrong update this*/}
         {/* <Lamp roomState={roomState} />
