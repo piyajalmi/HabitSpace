@@ -11,6 +11,7 @@ const connectDB = require("./config/db");
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", 1); 
 
 connectDB()
 
@@ -20,11 +21,15 @@ startNotificationScheduler();
 
 
 // Middleware
-app.use(cors()); 
+
 app.use(helmet());             // ✅ ADD THIS
 app.use(express.json());
-app.use("/api/habits", habitRoutes);
+app.use(cors({
+  origin: ["http://localhost:5173", "https://habit-space-nu.vercel.app"],
+  credentials: true
+}));
 
+app.use("/api/habits", habitRoutes);
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -38,10 +43,7 @@ const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/summary", summaryRoutes);
-app.use(cors({
-  origin: ["http://localhost:5173", "https://habit-space-nu.vercel.app"],
-  credentials: true
-}));
+
 // Health route
 app.get("/api/health", (req, res) => {
   res.status(200).json({
