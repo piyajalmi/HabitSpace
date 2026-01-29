@@ -38,6 +38,10 @@ const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/summary", summaryRoutes);
+app.use(cors({
+  origin: ["http://localhost:5173", "https://habit-space-nu.vercel.app"],
+  credentials: true
+}));
 // Health route
 app.get("/api/health", (req, res) => {
   res.status(200).json({
