@@ -11,6 +11,7 @@ const connectDB = require("./config/db");
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", 1); 
 
 connectDB()
 
@@ -20,7 +21,7 @@ startNotificationScheduler();
 
 
 // Middleware
-app.use(cors()); 
+
 app.use(helmet());             // ✅ ADD THIS
 app.use(express.json());
 app.use("/api/habits", habitRoutes);
