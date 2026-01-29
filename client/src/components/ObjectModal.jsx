@@ -156,7 +156,7 @@ const editBtn = {
   marginTop: "6px",
   background: "none",
   border: "none",
-  color: "#9cff9c",
+  color: "#b58af6",
   cursor: "pointer",
   fontSize: "13px",
 };
@@ -194,9 +194,9 @@ const progressTrack = {
 
 const progressFill = {
   height: "100%",
-  background: "#9cff9c",
+  background: "#cc9cff",
   transition: "width 0.6s ease",
-  boxShadow: "0 0 8px rgba(156,255,156,0.6)",
+  boxShadow: "0 0 8px rgba(176, 155, 223, 0.6)",
 };
 
 const metaText = {
@@ -211,8 +211,8 @@ const primaryBtn = {
   padding: "12px",
   borderRadius: "14px",
   border: "none",
-  background: "#9cff9c",
-  color: "#063",
+  background: "#b577fc",
+  color: "rgb(255, 255, 255)",
   fontWeight: 700,
   cursor: "pointer",
 };

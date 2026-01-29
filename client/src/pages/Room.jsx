@@ -17,6 +17,7 @@ import { useState } from "react";
 import ObjectModal from "../components/ObjectModal";
 //Floating button
 import FloatingMenu from "../components/FloatingMenu";
+import ProgressModal from "../components/ProgressModal";
 
 const Room = () => {
   // 🔒 TEMP manual testing (0–4)
@@ -44,6 +45,18 @@ const Room = () => {
   const closeModal = () => {
     setSelectedObject(null);
   };
+
+  const pauseHabits = () => {
+    console.log("Habits paused");
+    alert("Habits paused ⏸️");
+  };
+
+  const resetRoom = () => {
+    console.log("Room reset");
+    alert("Room reset 🔄");
+  };
+
+  const [showProgress, setShowProgress] = useState(false);
 
   //removeable testing
 
@@ -184,6 +197,15 @@ const Room = () => {
 
         {/* 🧱 Base room only */}
       </Canvas>
+      <FloatingMenu
+        onPause={pauseHabits}
+        onReset={resetRoom}
+        onProgress={() => setShowProgress(true)}
+      />
+
+      {/* 🔽 Progress Modal (HERE) */}
+      {showProgress && <ProgressModal onClose={() => setShowProgress(false)} />}
+
       {/* MODAL OVERLAY AFTER CLICKING */}
       {selectedObject && (
         <ObjectModal object={selectedObject} onClose={closeModal} />

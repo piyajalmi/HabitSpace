@@ -1,65 +1,48 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const FloatingMenu = ({ onResetRoom }) => {
+const FloatingMenu = ({ onPause, onReset, onProgress }) => {
   const [open, setOpen] = useState(false);
-  const [paused, setPaused] = useState(false);
   const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.clear();
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
     navigate("/");
   };
 
   return (
-    <>
+    <div style={container}>
       {open && (
         <div style={menu}>
-          <button
-            style={item}
-            onClick={() => {
-              setPaused(!paused);
-              alert(paused ? "Habits resumed" : "Habits paused");
-            }}
-          >
-            {paused ? "▶️ Resume Habits" : "⏸️ Pause Habits"}
+          <button style={menuBtn} onClick={onPause}>
+            ⏸️ Pause Habits
           </button>
-
-          <button
-            style={item}
-            onClick={() => alert("Progress modal coming next 👀")}
-          >
+          <button style={menuBtn} onClick={onProgress}>
             📊 Your Progress
           </button>
-
-          <button
-            style={item}
-            onClick={() => alert("Guide modal coming next 📖")}
-          >
-            📖 Guide / How it works
+          <button style={menuBtn} onClick={() => navigate("/guide")}>
+            📖 Guide
           </button>
-
-          <button
-            style={item}
-            onClick={() => {
-              if (confirm("Reset room progress?")) {
-                onResetRoom?.();
-              }
-            }}
-          >
+          <button style={menuBtn} onClick={onReset}>
             🔄 Reset Room
           </button>
-
-          <button style={{ ...item, color: "#ff8b8b" }} onClick={logout}>
+          <button style={menuBtn} onClick={logout}>
             🚪 Logout
           </button>
         </div>
       )}
 
-      <button style={fab} onClick={() => setOpen(!open)}>
+      <button
+        style={{
+          ...fab,
+          transform: open ? "rotate(90deg)" : "rotate(0deg)",
+        }}
+        onClick={() => setOpen(!open)}
+      >
         {open ? "✕" : "☰"}
       </button>
-    </>
+    </div>
   );
 };
 
@@ -67,40 +50,56 @@ export default FloatingMenu;
 
 /* ---------- STYLES ---------- */
 
+const container = {
+  position: "fixed",
+  bottom: "20px",
+  right: "20px",
+  zIndex: 2000,
+};
+
 const fab = {
   position: "fixed",
-  bottom: "24px",
-  right: "24px",
-  width: "56px",
-  height: "56px",
+  bottom: "22px",
+  right: "22px",
+  width: "58px",
+  height: "58px",
   borderRadius: "50%",
-  background: "#6d4be8f3",
-  border: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   fontSize: "24px",
-  fontWeight: "bold",
+  lineHeight: "1",
+  background: "rgb(134, 67, 241)",
+  color: "white",
   cursor: "pointer",
-  zIndex: 1001,
+  zIndex: 9999, // 🔥 FORCE TOP
+  pointerEvents: "auto", // 🔥 IMPORTANT
 };
 
 const menu = {
   position: "fixed",
-  bottom: "90px",
-  right: "24px",
-  background: "rgba(40,40,40,0.9)",
-  backdropFilter: "blur(12px)",
-  borderRadius: "16px",
-  padding: "12px",
+  bottom: "92px", // 👈 sits ABOVE the FAB
+  right: "22px",
   display: "flex",
   flexDirection: "column",
-  gap: "8px",
-  zIndex: 1000,
+  gap: "10px",
+  padding: "14px",
+  borderRadius: "18px",
+  background: "rgba(30, 30, 40, 0.75)",
+  backdropFilter: "blur(16px)",
+  WebkitBackdropFilter: "blur(16px)",
+  boxShadow: "0 12px 30px rgba(0,0,0,0.35)",
+  zIndex: 1100,
 };
 
-const item = {
-  background: "none",
+const menuBtn = {
+  background: "rgba(255,255,255,0.12)",
   border: "none",
   color: "white",
+  padding: "12px 14px",
+  borderRadius: "12px",
   fontSize: "14px",
-  textAlign: "left",
+  fontWeight: 500,
   cursor: "pointer",
+  textAlign: "left",
 };
