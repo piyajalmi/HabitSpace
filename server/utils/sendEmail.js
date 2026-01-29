@@ -1,20 +1,16 @@
-const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const sendEmail = async ({ to, subject, html }) => {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
-  await transporter.sendMail({
-    from: `"HabitSpace" <${process.env.EMAIL_USER}>`,
+  const msg = {
     to,
+    from: process.env.EMAIL_FROM, // must be verified in SendGrid
     subject,
     html,
-  });
+  };
+
+  await sgMail.send(msg);
 };
 
 module.exports = sendEmail;

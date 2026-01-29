@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 const generateResetToken = require("../utils/generateResetToken");
-const nodemailer = require("nodemailer");
+
 
 const getMe = async (req, res) => {
   const user = await User.findById(req.user.id).select("-password");
@@ -30,27 +30,32 @@ const forgotPassword = async (req, res) => {
   user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
   await user.save();
 
-  const resetURL = `http://localhost:5173/reset-password/${resetToken}`;
+const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
- const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // true for 465
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-  await transporter.sendMail({
-    to: user.email,
-    subject: "HabitSpace Password Reset",
-    html: `
+await sendEmail({
+  to: user.email,
+  subject: "HabitSpace Password Reset",
+  html: `
+    <div style="font-family: Arial, sans-serif;">
       <h2>Password Reset</h2>
       <p>Click below to reset your password (valid for 15 mins):</p>
-      <a href="${resetURL}">${resetURL}</a>
-    `,
-  });
+      <a
+        href="${resetURL}"
+        style="
+          display:inline-block;
+          padding:12px 20px;
+          background:#4f46e5;
+          color:#fff;
+          text-decoration:none;
+          border-radius:6px;
+        "
+      >
+        Reset Password
+      </a>
+    </div>
+  `,
+});
+
 
   res.json({ message: "Reset link sent to email" });
 };
