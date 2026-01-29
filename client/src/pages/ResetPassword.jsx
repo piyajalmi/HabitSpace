@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+//import roomImage from "../assets/room.png";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -27,7 +28,7 @@ const ResetPassword = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ password }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -46,7 +47,7 @@ const ResetPassword = () => {
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
-        <h2>Reset Password</h2>
+        <h1 style={styles.title}>Reset Password</h1>
 
         <input
           type="password"
@@ -68,7 +69,7 @@ const ResetPassword = () => {
           Reset Password
         </button>
 
-        {message && <p style={{ marginTop: "10px" }}>{message}</p>}
+        {message && <p style={styles.message}>{message}</p>}
       </div>
     </div>
   );
@@ -76,36 +77,62 @@ const ResetPassword = () => {
 
 const styles = {
   wrapper: {
-    height: "100vh",
+    height: "99.9vh",
+    width: "100vw",
     display: "flex",
-    justifyContent: "center",
     alignItems: "center",
-    background: "#1e1e2f",
+    justifyContent: "center", // ⭐ THIS CENTERS THE CARD
+    background: "#A8B0C1",
+    fontFamily: "'Poppins', system-ui, sans-serif",
   },
+
   card: {
-    padding: "30px",
-    borderRadius: "12px",
-    background: "rgba(255,255,255,0.1)",
-    backdropFilter: "blur(10px)",
-    color: "white",
-    width: "300px",
+    background: "linear-gradient(135deg, #CBADA5, #ace1ba)",
+    padding: "40px",
+    width: "600px",
+    borderRadius: "22px",
+    textAlign: "center",
+    boxShadow: "0 20px 40px #605d64",
   },
+
+  title: {
+    fontSize: "40px",
+    fontWeight: 600,
+    color: "#363945",
+    marginBottom: "20px",
+  },
+
   input: {
-    width: "100%",
-    padding: "10px",
-    marginTop: "10px",
-    borderRadius: "6px",
-    border: "none",
+    background: "linear-gradient(135deg, #E9FBEB, #FDE0F2)",
+    width: "90%",
+    padding: "12px",
+    marginBottom: "14px",
+    borderRadius: "14px",
+    border: "1px solid #ddd",
+    boxShadow: "0 20px 40px #5f5c65",
+    outline: "none",
+    fontSize: "14px",
+    color: "#3b4252",
   },
+
   button: {
-    marginTop: "15px",
     width: "100%",
-    padding: "10px",
-    borderRadius: "6px",
+    padding: "12px",
+    borderRadius: "18px",
     border: "none",
-    background: "#4f46e5",
-    color: "white",
+    marginTop: "10px",
     cursor: "pointer",
+    fontSize: "14px",
+    background: "#707E99",
+    color: "white",
+    fontWeight: 500,
+  },
+
+  message: {
+    marginTop: "14px",
+    fontSize: "18px",
+    color: "#eb4949", // 🔴 red error color
+    fontWeight: 500,
   },
 };
 

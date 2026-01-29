@@ -13,6 +13,7 @@ const ProgressModal = ({ onClose }) => {
 
         <div style={box}>🌱 Plant: 4‑day streak</div>
         <div style={box}>💡 Focus: 2 sessions</div>
+        <div style={box}>🌤️ Mindfulness: 1‑day streak</div>
         <div style={box}>📚 Reading: 12‑day streak</div>
       </div>
     </div>

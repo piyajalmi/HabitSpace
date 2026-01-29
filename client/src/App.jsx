@@ -9,6 +9,16 @@ function App() {
       <Routes>
         <Route path="/" element={<Auth />} />
         <Route path="/room" element={<Room />} />
+        {/* <Route
+          path="/room"
+          element={
+            localStorage.getItem("token") ? (
+              <Room />
+            ) : (
+              <Navigate to="/auth" replace />
+            )
+          }
+        /> */}
         <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
