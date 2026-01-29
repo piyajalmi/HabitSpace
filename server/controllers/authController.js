@@ -3,10 +3,80 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
+const generateResetToken = require("../utils/generateResetToken");
+const nodemailer = require("nodemailer");
 
 const getMe = async (req, res) => {
   const user = await User.findById(req.user.id).select("-password");
   res.json(user);
+};
+
+
+// 🔹 FORGOT PASSWORD
+const forgotPassword = async (req, res) => {
+
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const resetToken = generateResetToken();
+
+  user.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+  await user.save();
+
+  const resetURL = `http://localhost:5173/reset-password/${resetToken}`;
+
+ const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true for 465
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+  await transporter.sendMail({
+    to: user.email,
+    subject: "HabitSpace Password Reset",
+    html: `
+      <h2>Password Reset</h2>
+      <p>Click below to reset your password (valid for 15 mins):</p>
+      <a href="${resetURL}">${resetURL}</a>
+    `,
+  });
+
+  res.json({ message: "Reset link sent to email" });
+};
+const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user)
+    return res.status(400).json({ message: "Token invalid or expired" });
+
+  const salt = await bcrypt.genSalt(10);
+user.password = await bcrypt.hash(password, salt);
+
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  res.json({ message: "Password reset successful" });
 };
 
 
@@ -172,7 +242,14 @@ const verifyEmail = async (req, res) => {
 };
 
 
-module.exports = { signup, login, verifyEmail };
-module.exports = { signup, login, verifyEmail, getMe };
+module.exports = {
+  signup,
+  login,
+  verifyEmail,
+  getMe,
+  forgotPassword,
+  resetPassword,
+};
+
 
 
