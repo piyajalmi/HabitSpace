@@ -1,21 +1,28 @@
 import { useThree } from "@react-three/fiber";
 import { TextureLoader } from "three";
 import { useEffect } from "react";
-import { BACKGROUND_MAP } from "../utils/modelMap";
 
-const SceneBackground = ({ roomState }) => {
+// put your image in /public/backgrounds/
+const BACKGROUND_IMAGE = "/backgrounds/landscape.jpg";
+
+const SceneBackground = () => {
   const { scene } = useThree();
 
   useEffect(() => {
     const loader = new TextureLoader();
-    const imagePath = BACKGROUND_MAP[roomState];
 
-    if (!imagePath) return;
-
-    loader.load(imagePath, (texture) => {
-      scene.background = texture;
-    });
-  }, [scene, roomState]);
+    loader.load(
+      BACKGROUND_IMAGE,
+      (texture) => {
+        texture.colorSpace = "srgb";
+        scene.background = texture;
+      },
+      undefined,
+      (err) => {
+        console.error("Failed to load background", err);
+      },
+    );
+  }, [scene]);
 
   return null;
 };

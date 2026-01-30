@@ -18,7 +18,7 @@ const calculateHabitState = (habit) => {
 
   // 2. Completed today or yesterday
   if (diffDays <= 1) {
-    if (consecutiveDays >= 30) {
+    if (consecutiveDays >= 7) {
       return "flourishing";
     }
     return "active";
