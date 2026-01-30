@@ -1,17 +1,23 @@
+// utils/objectStateCalculator.js
+
+import { ROOM_STATES } from "./roomState";
+
 export function getObjectState(habit) {
-  if (!habit) return 2; // neutral if no habit
+  if (!habit) return ROOM_STATES.NEUTRAL;
 
-  const today = new Date();
-  const last = habit.lastCompletedDate ? new Date(habit.lastCompletedDate) : null;
-
-  if (!last) return 1; // missed
-
-  const diffDays = Math.floor((today - last) / (1000 * 60 * 60 * 24));
-
-  if (diffDays >= 5) return 0; // abandoned
-  if (diffDays >= 2) return 1; // missed
-  if (habit.consecutiveDays >= 20) return 4; // flourishing
-  if (habit.consecutiveDays >= 7) return 3; // active
-
-  return 2; // neutral
+  switch (habit.currentState) {
+    case "abandoned":
+      return ROOM_STATES.ABANDONED;
+    case "missed":
+      return ROOM_STATES.MISSED;
+    case "neutral":
+      return ROOM_STATES.NEUTRAL;
+    case "active":
+      return ROOM_STATES.ACTIVE;
+    case "flourishing":
+      return ROOM_STATES.FLOURISHING;
+    default:
+      return ROOM_STATES.NEUTRAL;
+  }
 }
+
