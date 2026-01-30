@@ -167,7 +167,7 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   className="eye-icon"
   onClick={() => setShowPassword((prev) => !prev)}
 >
-  {showPassword ? "👁️" : "🙈"}
+  {showPassword ? "👀" : "🙈"}
 </span>
 
   </div>
@@ -188,7 +188,7 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   className="eye-icon"
   onClick={() => setShowConfirmPassword((prev) => !prev)}
 >
-  {showConfirmPassword ? "👁️" : "🙈"}
+  {showConfirmPassword ? "👀" : "🙈"}
 </span>
   </div>
 )}

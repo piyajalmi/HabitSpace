@@ -1,5 +1,6 @@
 const cron = require("node-cron");
 const DailySummary = require("../models/DailySummary");
+const getToday = require("./getToday");
 
 const midDayMessages = [
   "🌱 Halfway through the day — how are your habits going?",
@@ -14,24 +15,57 @@ const eveningMessages = [
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 const startNotificationScheduler = () => {
-  // 🧪 TEMP TEST: runs every minute
-  cron.schedule("* * * * *", async () => {
-    console.log("⏰ Cron tick - scheduler alive");
-    try {
-      const summaries = await DailySummary.find({
-        pending: { $gt: 0 },
-        midDayNotified: false,
-      });
 
-      summaries.forEach(async (s) => {
-        console.log("🔔 MIDDAY TEST:", pick(midDayMessages));
+  /* 🌞 MIDDAY REMINDER — 1:00 PM */
+  cron.schedule("0 13 * * *", async () => {
+    console.log("☀️ Midday notification check");
 
-        s.midDayNotified = true;
-        await s.save();
-      });
-    } catch (err) {
-      console.error("Notification error:", err);
+    const today = getToday();
+
+    const summaries = await DailySummary.find({
+      date: today,
+      pending: { $gt: 0 },
+      midDayNotified: false,
+    });
+
+    for (const s of summaries) {
+      console.log(`🔔 MIDDAY for user ${s.userId}:`, pick(midDayMessages));
+
+      s.midDayNotified = true;
+      await s.save();
     }
+  });
+
+  /* 🌆 EVENING REMINDER — 7:00 PM */
+  cron.schedule("0 19 * * *", async () => {
+    console.log("🌙 Evening notification check");
+
+    const today = getToday();
+
+    const summaries = await DailySummary.find({
+      date: today,
+      pending: { $gt: 0 },
+      eveningNotified: false,
+    });
+
+    for (const s of summaries) {
+      console.log(`🔔 EVENING for user ${s.userId}:`, pick(eveningMessages));
+
+      s.eveningNotified = true;
+      await s.save();
+    }
+  });
+
+  /* 🌙 RESET FLAGS AT MIDNIGHT FOR NEW DAY */
+  cron.schedule("0 0 * * *", async () => {
+    console.log("🌙 Resetting notification flags for new day");
+
+    const today = getToday();
+
+    await DailySummary.updateMany(
+      { date: today },
+      { midDayNotified: false, eveningNotified: false }
+    );
   });
 };
 
