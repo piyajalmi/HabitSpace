@@ -191,12 +191,32 @@ const Room = () => {
         onGuide={() => setShowGuide(true)}
       />
 
+      {/* //pause feature */}
+      {isPaused && (
+  <div style={{
+    position: "fixed",
+    top: 20,
+    left: "50%",
+    transform: "translateX(-50%)",
+    padding: "10px 18px",
+    borderRadius: "12px",
+    background: "rgba(0,0,0,0.6)",
+    color: "white",
+    fontSize: "14px",
+    zIndex: 3000,
+  }}>
+    ⏸ Habits Paused
+  </div>
+)}
+
+
       {showGuide && <GuideModal onClose={() => setShowGuide(false)} />}
       {showProgress && <ProgressModal onClose={() => setShowProgress(false)} />}
 
       {selectedHabit && (
         <ObjectModal
           habit={selectedHabit}
+          isPaused={isPaused}
           onClose={closeModal}
           onHabitUpdated={(updatedHabit) =>
             setHabits((prev) =>

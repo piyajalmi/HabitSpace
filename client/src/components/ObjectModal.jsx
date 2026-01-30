@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const ObjectModal = ({ habit, onClose, onHabitUpdated }) => {
+const ObjectModal = ({ habit, onClose, onHabitUpdated, isPaused }) => {
   if (!habit) return null;
 
   const statusMessages = {
@@ -46,10 +46,15 @@ const ObjectModal = ({ habit, onClose, onHabitUpdated }) => {
   };
 
   const markAsDone = async () => {
+    //paused feature
+    if (isPaused) {
+    alert("⏸ Habits are paused. Resume to continue.");
+    return;
+  }
     try {
       const token = localStorage.getItem("token");
 
-      await fetch(
+     const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/habits/${habit._id}/complete`,
         {
           method: "POST",
@@ -57,11 +62,13 @@ const ObjectModal = ({ habit, onClose, onHabitUpdated }) => {
         }
       );
 
-      window.location.reload();
-    } catch (err) {
-      console.error("Failed to mark habit done", err);
-    }
-  };
+     
+   const updatedHabit = await res.json();
+    onHabitUpdated(updatedHabit);
+  } catch (err) {
+    console.error("Failed to mark habit done", err);
+  }
+};
 
   return (
     <div style={overlayStyle} onClick={onClose}>
@@ -123,9 +130,18 @@ const ObjectModal = ({ habit, onClose, onHabitUpdated }) => {
           </div>
         </div>
 
-        <button style={primaryBtn} onClick={markAsDone}>
-          Mark as Done
-        </button>
+        <button
+  style={{
+    ...primaryBtn,
+    opacity: isPaused ? 0.5 : 1,
+    cursor: isPaused ? "not-allowed" : "pointer",
+  }}
+  onClick={markAsDone}
+  disabled={isPaused}
+>
+  {isPaused ? "Paused" : "Mark as Done"}
+</button>
+
 
         <p style={footerText}>Progress updates visually in the room.</p>
       </div>
