@@ -1,27 +1,34 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const FloatingMenu = ({ onPause, onReset, onProgress }) => {
+const FloatingMenu = ({
+  onPauseToggle,
+  isPaused,
+  onReset,
+  onProgress,
+  onGuide,
+}) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
-    navigate("/");
+
+    navigate("/", { replace: true });
   };
 
   return (
     <div style={container}>
       {open && (
         <div style={menu}>
-          <button style={menuBtn} onClick={onPause}>
-            ⏸️ Pause Habits
+          <button onClick={onPauseToggle}>
+            {isPaused ? "▶ Resume Habits" : "⏸ Pause Habits"}
           </button>
           <button style={menuBtn} onClick={onProgress}>
             📊 Your Progress
           </button>
-          <button style={menuBtn} onClick={() => navigate("/guide")}>
+          <button style={menuBtn} onClick={onGuide}>
             📖 Guide
           </button>
           <button style={menuBtn} onClick={onReset}>

@@ -73,6 +73,31 @@ const statusMessages = {
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/api/habits/${habit._id}`,
       {
+const ObjectModal = ({ habit, onClose }) => {
+  if (!habit) return null;
+
+  const statusMessages = {
+    neutral: "Let’s start building this habit 🌱",
+    active: "Great consistency! Keep going 💪",
+    flourishing: "Amazing! This habit is thriving 🚀",
+    missed: "It’s okay — today is a fresh start 🌤️",
+    abandoned: "You can restart anytime 💛",
+  };
+
+  const DESCRIPTIONS = {
+    plant: "Care for your plant to help it grow every day 🌱",
+    lamp: "Focus deeply and work distraction‑free 💡",
+    window: "Pause and take mindful breaks 🌤️",
+    bookshelf: "Read a little every day 📚",
+  };
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState(habit.habitName || "");
+
+  const saveName = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`${import.meta.env.VITE_API_URL}/api/habits/${habit._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -120,7 +145,6 @@ const markAsDone = async () => {
           ✕
         </button>
 
-        {/* HEADER */}
         {isEditing ? (
           <input
             value={name}
@@ -129,7 +153,7 @@ const markAsDone = async () => {
             autoFocus
           />
         ) : (
-          <h2 style={{ marginBottom: "4px" }}>{name}</h2>
+          <h2>{habit.habitName || "New Habit"}</h2>
         )}
 
         <p style={descStyle}>
@@ -149,7 +173,6 @@ const markAsDone = async () => {
 >   {isEditing ? "Save Name" : "Edit Habit Name"}
         </button>
 
-        {/* STATUS */}
         <div style={sectionBox}>
   <p style={sectionTitle}>📌 Status</p>
   <p style={statusText}>{habit.currentState}</p>
@@ -157,10 +180,8 @@ const markAsDone = async () => {
 </div>
 
 
-        {/* PROGRESS */}
         <div style={sectionBox}>
           <p style={sectionTitle}>Weekly Progress</p>
-
           <div style={progressTrack}>
             <div
               style={{
@@ -169,7 +190,6 @@ const markAsDone = async () => {
               }}
             />
           </div>
-
           <div style={metaText}>
             🔥 Streak: <strong>{habit.consecutiveDays} days</strong>
             <br />

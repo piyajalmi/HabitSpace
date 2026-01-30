@@ -18,6 +18,7 @@ import ObjectModal from "../components/ObjectModal";
 //Floating button
 import FloatingMenu from "../components/FloatingMenu";
 import ProgressModal from "../components/ProgressModal";
+import GuideModal from "../components/GuideModal";
 
 const Room = () => {
   // 🔒 TEMP manual testing (0–4)
@@ -34,21 +35,45 @@ const Room = () => {
   const bulbCoreIntensity = [0.02, 0.05, 0.08, 0.12, 0.18];
 
   // removeable OBJECT CLICKING AND HOVERING AND OVERLAY APPEARING
-  const [selectedObject, setSelectedObject] = useState(null);
+  const [selectedHabit, setSelectedHabit] = useState(null);
   const [habits, setHabits] = useState([]);
 
   // ✅ SINGLE click handler (this is the only one)
-  const handleObjectClick = (object) => {
-    setSelectedObject(object); // "plant" | "lamp" | "window" | "bookshelf"
+  const handleObjectClick = (objectType) => {
+    console.log("CLICKED:", objectType);
+
+    const habit = habits.find((h) => h.type === objectType);
+
+    setSelectedHabit(
+      habit || {
+        type: objectType,
+        habitName: "New Habit",
+        currentState: "neutral",
+        consecutiveDays: 0,
+        lastCompletedDate: null,
+        _id: null, // placeholder
+      },
+    );
   };
 
   const closeModal = () => {
-    setSelectedObject(null);
+    setSelectedHabit(null);
   };
 
-  const pauseHabits = () => {
-    console.log("Habits paused");
-    alert("Habits paused ⏸️");
+  const frozenStatesRef = useRef(null);
+
+  const togglePause = () => {
+    setIsPaused((prev) => {
+      if (!prev) {
+        frozenStatesRef.current = {
+          plant: getObjectState(plantHabit),
+          lamp: getObjectState(lampHabit),
+          window: getObjectState(windowHabit),
+          bookshelf: getObjectState(bookshelfHabit),
+        };
+      }
+      return !prev;
+    });
   };
 
   const resetRoom = async () => {
@@ -69,7 +94,22 @@ const Room = () => {
 };
 
 
+  useEffect(() => {
+    console.log("Selected habit:", selectedHabit);
+  }, [selectedHabit]);
+
   const [showProgress, setShowProgress] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const [resetVersion, setResetVersion] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    //this is used for loggin out button in FAB
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/");
+    }
+  }, []);
 
   //removeable testing
 
@@ -78,7 +118,7 @@ const Room = () => {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        navigate("/auth");
+        navigate("/auth"); //check this again
         return;
       }
 
@@ -160,10 +200,40 @@ const selectedHabit = selectedObject
 
 
   // Convert habit → visual state (0–4)
-  const plantState = getObjectState(plantHabit);
-  const lampState = getObjectState(lampHabit);
-  const windowState = getObjectState(windowHabit);
-  const bookshelfState = getObjectState(bookshelfHabit);
+  // const plantState = getObjectState(plantHabit);
+  // const lampState = getObjectState(lampHabit);
+  // const windowState = getObjectState(windowHabit);
+  // const bookshelfState = getObjectState(bookshelfHabit);
+
+  const plantState =
+    resetVersion > 0
+      ? 2
+      : isPaused && frozenStatesRef.current
+        ? frozenStatesRef.current.plant
+        : getObjectState(plantHabit);
+
+  const lampState =
+    resetVersion > 0
+      ? 2
+      : isPaused && frozenStatesRef.current
+        ? frozenStatesRef.current.lamp
+        : getObjectState(lampHabit);
+
+  const windowState =
+    resetVersion > 0
+      ? 2
+      : isPaused && frozenStatesRef.current
+        ? frozenStatesRef.current.window
+        : getObjectState(windowHabit);
+
+  const bookshelfState =
+    resetVersion > 0
+      ? 2
+      : isPaused && frozenStatesRef.current
+        ? frozenStatesRef.current.bookshelf
+        : getObjectState(bookshelfHabit);
+
+  //not the final above
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -230,10 +300,34 @@ const selectedHabit = selectedObject
         {/* 🧱 Base room only */}
       </Canvas>
       <FloatingMenu
-        onPause={pauseHabits}
+        onPauseToggle={togglePause}
+        isPaused={isPaused}
         onReset={resetRoom}
         onProgress={() => setShowProgress(true)}
+        onGuide={() => setShowGuide(true)}
       />
+
+      {isPaused && (
+        <div
+          style={{
+            position: "fixed",
+            top: 20,
+            left: "50%",
+            transform: "translateX(-50%)",
+            padding: "8px 16px",
+            borderRadius: "12px",
+            background: "rgba(0,0,0,0.6)",
+            color: "white",
+            fontSize: "14px",
+            zIndex: 3000,
+          }}
+        >
+          ⏸ Habits Paused
+        </div>
+      )}
+
+      {/* guideModel */}
+      {showGuide && <GuideModal onClose={() => setShowGuide(false)} />}
 
       {/* 🔽 Progress Modal (HERE) */}
       {showProgress && <ProgressModal onClose={() => setShowProgress(false)} />}
