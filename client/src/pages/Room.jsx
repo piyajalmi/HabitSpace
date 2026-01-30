@@ -23,7 +23,7 @@ const Room = () => {
 
   const lampMainRef = useRef();
   const bulbCoreRef = useRef();
-  const frozenStatesRef = useRef(null);
+  const frozenStatesRef = useRef(null); //pause feature
 
   const [selectedHabit, setSelectedHabit] = useState(null);
   const [habits, setHabits] = useState([]);
@@ -51,7 +51,7 @@ const Room = () => {
 
   const closeModal = () => setSelectedHabit(null);
 
-  const togglePause = () => {
+  const togglePause = () => { //pause feature
     setIsPaused((prev) => {
       if (!prev) {
         frozenStatesRef.current = {

@@ -64,7 +64,7 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     style={styles.eye}
     onClick={() => setShowPassword((prev) => !prev)}
   >
-    {showPassword ? "👁️" : "🙈"}
+    {showPassword ? "👀" : "🙈"}
   </span>
 </div>
 
@@ -83,7 +83,7 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     style={styles.eye}
     onClick={() => setShowConfirmPassword((prev) => !prev)}
   >
-    {showConfirmPassword ? "👁️" : "🙈"}
+    {showConfirmPassword ? "👀" : "🙈"}
   </span>
 </div>
 
