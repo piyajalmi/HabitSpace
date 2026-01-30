@@ -211,7 +211,12 @@ const Room = () => {
 
 
       {showGuide && <GuideModal onClose={() => setShowGuide(false)} />}
-      {showProgress && <ProgressModal onClose={() => setShowProgress(false)} />}
+{showProgress && (
+  <ProgressModal
+    onClose={() => setShowProgress(false)}
+    habits={habits}
+  />
+)}
 
       {selectedHabit && (
         <ObjectModal
