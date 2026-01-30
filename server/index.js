@@ -25,7 +25,7 @@ startNotificationScheduler();
 app.use(helmet());             // ✅ ADD THIS
 app.use(express.json());
 app.use(cors({
-  origin: ["http://localhost:5173", "https://habit-space-60kooev66-piya-jalmis-projects.vercel.app/"],
+  origin: ["http://localhost:5173", "https://habit-space-nu.vercel.app"],
   credentials: true
 }));
 
