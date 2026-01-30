@@ -31,8 +31,10 @@ const Room = () => {
   const [showGuide, setShowGuide] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
-  const lampMainIntensity = [0.15, 0.3, 0.55, 0.85, 1.1];
-  const bulbCoreIntensity = [0.02, 0.05, 0.08, 0.12, 0.18];
+  // const lampMainIntensity = [0.15, 0.3, 0.55, 0.85, 1.1];
+  // const bulbCoreIntensity = [0.02, 0.05, 0.08, 0.12, 0.18];
+  const lampMainIntensity = [0.3, 0.5, 0.8, 1.2, 1.6];
+  const bulbCoreIntensity = [0.05, 0.1, 0.18, 0.28, 0.4];
 
   const handleObjectClick = (objectType) => {
     const habit = habits.find((h) => h.type === objectType);
@@ -45,7 +47,7 @@ const Room = () => {
         consecutiveDays: 0,
         lastCompletedDate: null,
         _id: null,
-      }
+      },
     );
   };
 
@@ -87,9 +89,12 @@ const Room = () => {
     const fetchHabits = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/habits/my-habits`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/habits/my-habits`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
         const data = await res.json();
         setHabits(Array.isArray(data) ? data : []);
       } catch {
@@ -104,23 +109,47 @@ const Room = () => {
   const windowHabit = habits.find((h) => h.type === "window");
   const bookshelfHabit = habits.find((h) => h.type === "bookshelf");
 
-  const plantState = isPaused && frozenStatesRef.current ? frozenStatesRef.current.plant : getObjectState(plantHabit);
-  const lampState = isPaused && frozenStatesRef.current ? frozenStatesRef.current.lamp : getObjectState(lampHabit);
-  const windowState = isPaused && frozenStatesRef.current ? frozenStatesRef.current.window : getObjectState(windowHabit);
-  const bookshelfState = isPaused && frozenStatesRef.current ? frozenStatesRef.current.bookshelf : getObjectState(bookshelfHabit);
+  const plantState =
+    isPaused && frozenStatesRef.current
+      ? frozenStatesRef.current.plant
+      : getObjectState(plantHabit);
+  const lampState =
+    isPaused && frozenStatesRef.current
+      ? frozenStatesRef.current.lamp
+      : getObjectState(lampHabit);
+  const windowState =
+    isPaused && frozenStatesRef.current
+      ? frozenStatesRef.current.window
+      : getObjectState(windowHabit);
+  const bookshelfState =
+    isPaused && frozenStatesRef.current
+      ? frozenStatesRef.current.bookshelf
+      : getObjectState(bookshelfHabit);
 
   useEffect(() => {
-    if (lampMainRef.current) lampMainRef.current.intensity = lampMainIntensity[roomState];
-    if (bulbCoreRef.current) bulbCoreRef.current.intensity = bulbCoreIntensity[roomState];
-  }, [roomState]);
+    if (lampMainRef.current) {
+      lampMainRef.current.intensity = lampMainIntensity[lampState ?? 2];
+    }
+
+    if (bulbCoreRef.current) {
+      bulbCoreRef.current.intensity = bulbCoreIntensity[lampState ?? 2];
+    }
+  }, [lampState]);
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <WelcomeToast userName={userName} roomState={roomState} />
-      <Canvas camera={{ position: [1.5, 1.1, 2.5], fov: 50, rotation: [0, 0.65, 0] }}
-        gl={{ physicallyCorrectLights: true, outputColorSpace: THREE.SRGBColorSpace, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 0.7 }}>
-        
-        <SceneBackground roomState={roomState} />
+      <Canvas
+        camera={{ position: [1.5, 1.1, 2.5], fov: 50, rotation: [0, 0.65, 0] }}
+        gl={{
+          physicallyCorrectLights: true,
+          outputColorSpace: THREE.SRGBColorSpace,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 0.7,
+        }}
+      >
+        <SceneBackground />
+
         <RoomModel />
         <Plant roomState={plantState} onClick={handleObjectClick} />
         <Lamp roomState={lampState} onClick={handleObjectClick} />
@@ -128,17 +157,39 @@ const Room = () => {
         <Bookshelf roomState={bookshelfState} onClick={handleObjectClick} />
 
         <EffectComposer>
-          <Bloom intensity={0.15} luminanceThreshold={0.9} luminanceSmoothing={0.9} />
+          <Bloom
+            intensity={0.15}
+            luminanceThreshold={0.9}
+            luminanceSmoothing={0.9}
+          />
         </EffectComposer>
 
         <ambientLight intensity={0.25} />
         <directionalLight position={[2, 4, 2]} intensity={0.9} />
         <directionalLight position={[-1, 2, 2]} intensity={0.35} />
-        <pointLight ref={lampMainRef} position={[-1.2, 1.6, 0.8]} distance={2.3} decay={2} color="#ffd9a6" />
-        <pointLight ref={bulbCoreRef} position={[-0.85, 1.75, 0.95]} distance={0.6} decay={2} color="#ffdca8" />
+        <pointLight
+          ref={lampMainRef}
+          position={[-1.2, 1.6, 0.8]}
+          distance={2.3}
+          decay={2}
+          color="#ffd9a6"
+        />
+        <pointLight
+          ref={bulbCoreRef}
+          position={[-0.85, 1.75, 0.95]}
+          distance={0.6}
+          decay={2}
+          color="#ffdca8"
+        />
       </Canvas>
 
-      <FloatingMenu onPauseToggle={togglePause} isPaused={isPaused} onReset={resetRoom} onProgress={() => setShowProgress(true)} onGuide={() => setShowGuide(true)} />
+      <FloatingMenu
+        onPauseToggle={togglePause}
+        isPaused={isPaused}
+        onReset={resetRoom}
+        onProgress={() => setShowProgress(true)}
+        onGuide={() => setShowGuide(true)}
+      />
 
       {showGuide && <GuideModal onClose={() => setShowGuide(false)} />}
       {showProgress && <ProgressModal onClose={() => setShowProgress(false)} />}
@@ -148,7 +199,9 @@ const Room = () => {
           habit={selectedHabit}
           onClose={closeModal}
           onHabitUpdated={(updatedHabit) =>
-            setHabits((prev) => prev.map((h) => (h._id === updatedHabit._id ? updatedHabit : h)))
+            setHabits((prev) =>
+              prev.map((h) => (h._id === updatedHabit._id ? updatedHabit : h)),
+            )
           }
         />
       )}
@@ -157,22 +210,6 @@ const Room = () => {
 };
 
 export default Room;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import { Canvas } from "@react-three/fiber";
 // import { EffectComposer, Bloom } from "@react-three/postprocessing";
@@ -268,7 +305,6 @@ export default Room;
 //     console.error("Reset failed", err);
 //   }
 // };
-
 
 //   useEffect(() => {
 //     console.log("Selected habit:", selectedHabit);
@@ -373,7 +409,6 @@ export default Room;
 // // const selectedHabit = selectedObject
 // //   ? habits.find((h) => h.type === selectedObject)
 // //   : null;
-
 
 //   // Convert habit → visual state (0–4)
 //   // const plantState = getObjectState(plantHabit);
@@ -521,7 +556,6 @@ export default Room;
 //     }}
 //   />
 // )}
-
 
 //     </div>
 //   );
