@@ -131,7 +131,8 @@ const signup = async (req, res) => {
     });
 
     // 7️⃣ SEND VERIFICATION EMAIL ✅ (THIS WAS MISSING)
-    const verifyUrl = `${process.env.BACKEND_URL}/api/auth/verify-email/${verificationToken}`;
+    const verifyUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+
 
 
     await sendEmail({
@@ -186,38 +187,42 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user.isVerified) {
-  return res.status(403).json({
-    message: "Please verify your email before logging in",
-  });
-}
 
+    // 1️⃣ User must exist
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    // 2️⃣ Must be verified
+    if (!user.isVerified) {
+      return res.status(403).json({
+        message: "Please verify your email before logging in",
+      });
+    }
+
+    // 3️⃣ Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-   const token = jwt.sign(
-  { id: user._id },
-  process.env.JWT_SECRET,
-  { expiresIn: "7d" }
-);
-
+    // 4️⃣ Generate token
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
     res.json({
-  message: "Login successful",
-  token,
-  name: user.name, // ✅ ADD
-});
-
+      message: "Login successful",
+      token,
+      name: user.name,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 const verifyEmail = async (req, res) => {
   try {
