@@ -77,21 +77,22 @@ const Room = () => {
   };
 
   const resetRoom = async () => {
-    try {
-      const token = localStorage.getItem("token");
+  try {
+    const token = localStorage.getItem("token");
 
-      await fetch(`${import.meta.env.VITE_API_URL}/api/habits/reset/all`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    await fetch(`${import.meta.env.VITE_API_URL}/api/habits/reset/all`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      window.location.reload(); // ok for now
-    } catch (err) {
-      console.error("Reset failed", err);
-    }
-  };
+    window.location.reload(); // refresh visuals after reset
+  } catch (err) {
+    console.error("Reset failed", err);
+  }
+};
+
 
   useEffect(() => {
     console.log("Selected habit:", selectedHabit);
@@ -139,24 +140,35 @@ const Room = () => {
   }, []);
 
   useEffect(() => {
-    const fetchHabits = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/habits/my-habits`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-        const data = await res.json();
-        setHabits(data);
-      } catch (err) {
-        console.error("Failed to fetch habits", err);
-      }
-    };
+  const fetchHabits = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/habits/my-habits`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-    fetchHabits();
-  }, []);
+      const data = await res.json();
+
+      // 🛑 If backend sends error object instead of array
+      if (!Array.isArray(data)) {
+        console.error("Habits API error:", data);
+        setHabits([]); // prevent crash
+        return;
+      }
+
+      setHabits(data);
+    } catch (err) {
+      console.error("Failed to fetch habits", err);
+      setHabits([]); // prevent crash
+    }
+  };
+
+  fetchHabits();
+}, []);
+
   //testing to see habits from backend
   useEffect(() => {
     console.log("HABITS FROM BACKEND:", habits);
@@ -172,12 +184,20 @@ const Room = () => {
       bulbCoreRef.current.intensity = bulbCoreIntensity[roomState];
     }
   }, [roomState]);
-
+useEffect(() => {
+  console.log("Selected object:", selectedObject);
+  console.log("Matched habit:", selectedHabit);
+}, [selectedObject]);
   // 🔄 Assign habits to room objects
   const plantHabit = habits.find((h) => h.type === "plant");
   const lampHabit = habits.find((h) => h.type === "lamp");
   const windowHabit = habits.find((h) => h.type === "window");
   const bookshelfHabit = habits.find((h) => h.type === "bookshelf");
+
+const selectedHabit = selectedObject
+  ? habits.find((h) => h.type === selectedObject)
+  : null;
+
 
   // Convert habit → visual state (0–4)
   // const plantState = getObjectState(plantHabit);
@@ -313,12 +333,20 @@ const Room = () => {
       {showProgress && <ProgressModal onClose={() => setShowProgress(false)} />}
 
       {/* MODAL OVERLAY AFTER CLICKING */}
-      {selectedHabit && (
-        <ObjectModal
-          habit={selectedHabit}
-          onClose={() => setSelectedHabit(null)}
-        />
-      )}
+    {selectedHabit && (
+  <ObjectModal
+    habit={selectedHabit}
+    onClose={closeModal}
+    onHabitUpdated={(updatedHabit) => {
+      setHabits((prev) =>
+        prev.map((h) => (h._id === updatedHabit._id ? updatedHabit : h))
+      );
+      setSelectedObject(updatedHabit.type); // keep modal consistent
+    }}
+  />
+)}
+
+
     </div>
   );
 };

@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const protect = (req, res, next) => {
   let token;
 
-  // Expect token as: Authorization: Bearer <token>
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
@@ -13,8 +12,8 @@ const protect = (req, res, next) => {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // attach userId to request
-      req.user = { id: decoded.id };
+      // ✅ FIX: use _id so controllers work
+      req.user = { _id: decoded.id };
 
       next();
     } catch (error) {

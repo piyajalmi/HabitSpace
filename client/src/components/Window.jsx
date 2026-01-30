@@ -60,7 +60,7 @@ const WindowModel = ({ roomState, onClick }) => {
         setHovered(false);
         document.body.style.cursor = "default";
       }}
-      onClick={(e) => {
+      onPointerDown={(e) => {
         e.stopPropagation();
         onClick?.("window");
       }}
