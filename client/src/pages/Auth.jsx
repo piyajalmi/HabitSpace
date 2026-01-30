@@ -12,6 +12,9 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
@@ -151,26 +154,45 @@ const Auth = () => {
             />
 
             {/* PASSWORD (not in forgot mode) */}
-            {!forgotMode && (
-              <input
-                type="password"
-                placeholder="Password"
-                className="auth-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            )}
+           {!forgotMode && (
+  <div className="password-wrapper">
+    <input
+      type={showPassword ? "text" : "password"}
+      placeholder="Password"
+      className="auth-input"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+    />
+    <span
+  className="eye-icon"
+  onClick={() => setShowPassword((prev) => !prev)}
+>
+  {showPassword ? "👁️" : "🙈"}
+</span>
+
+  </div>
+)}
+
 
             {/* CONFIRM PASSWORD */}
-            {mode === "signup" && !forgotMode && (
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                className="auth-input"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            )}
+          {mode === "signup" && !forgotMode && (
+  <div className="password-wrapper">
+    <input
+      type={showConfirmPassword ? "text" : "password"}
+      placeholder="Confirm Password"
+      className="auth-input"
+      value={confirmPassword}
+      onChange={(e) => setConfirmPassword(e.target.value)}
+    />
+    <span
+  className="eye-icon"
+  onClick={() => setShowConfirmPassword((prev) => !prev)}
+>
+  {showConfirmPassword ? "👁️" : "🙈"}
+</span>
+  </div>
+)}
+
 
             {/* BUTTONS */}
             {forgotMode ? (

@@ -8,6 +8,9 @@ const ResetPassword = () => {
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [message, setMessage] = useState("");
 
   const handleReset = async () => {
@@ -49,21 +52,41 @@ const ResetPassword = () => {
       <div style={styles.card}>
         <h1 style={styles.title}>Reset Password</h1>
 
-        <input
-          type="password"
-          placeholder="New Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-        />
+        <div style={{ position: "relative", width: "90%", margin: "0 auto 14px" }}>
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="New Password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    style={{ ...styles.input, width: "100%", paddingRight: "40px", marginBottom: 0 }}
+  />
+  <span
+    style={styles.eye}
+    onClick={() => setShowPassword((prev) => !prev)}
+  >
+    {showPassword ? "👁️" : "🙈"}
+  </span>
+</div>
 
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          style={styles.input}
-        />
+
+
+       <div style={{ position: "relative", width: "90%", margin: "0 auto 14px" }}>
+
+  <input
+    type={showConfirmPassword ? "text" : "password"}
+    placeholder="Confirm Password"
+    value={confirm}
+    onChange={(e) => setConfirm(e.target.value)}
+    style={{ ...styles.input, width: "100%", paddingRight: "40px", marginBottom: 0 }}
+  />
+  <span
+    style={styles.eye}
+    onClick={() => setShowConfirmPassword((prev) => !prev)}
+  >
+    {showConfirmPassword ? "👁️" : "🙈"}
+  </span>
+</div>
+
 
         <button onClick={handleReset} style={styles.button}>
           Reset Password
@@ -134,6 +157,17 @@ const styles = {
     color: "#eb4949", // 🔴 red error color
     fontWeight: 500,
   },
+  eye: {
+  position: "absolute",
+  right: "14px",
+  top: "50%",
+  transform: "translateY(-50%)",
+  cursor: "pointer",
+  fontSize: "18px",
+  zIndex: 5,
+},
+
+
 };
 
 export default ResetPassword;

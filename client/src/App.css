@@ -146,7 +146,7 @@ body,
 /* Inputs */
 .auth-input {
   position: relative;
-  z-index: 3;
+  /* z-index: 3; */
   background: linear-gradient(135deg, #E9FBEB, #FDE0F2);
   width: 90%;
   padding: 12px;
@@ -184,4 +184,28 @@ body,
   margin-top: 14px;
   font-size: 17px;
   color: #eb4949;
+}
+.password-wrapper {
+  position: relative;
+  width: 90%;
+  margin: 0 auto 14px;
+}
+
+.password-wrapper .auth-input {
+  width: 100%;
+  padding-right: 45px;   /* space for icon */
+  margin-bottom: 0;      /* remove extra gap */
+  z-index: 1;            /* LOWER than icon */
+  position: relative;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+  z-index: 2;            /* ABOVE the input */
 }
