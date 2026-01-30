@@ -51,10 +51,23 @@ const Room = () => {
     alert("Habits paused ⏸️");
   };
 
-  const resetRoom = () => {
-    console.log("Room reset");
-    alert("Room reset 🔄");
-  };
+  const resetRoom = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    await fetch(`${import.meta.env.VITE_API_URL}/api/habits/reset/all`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    window.location.reload(); // refresh visuals after reset
+  } catch (err) {
+    console.error("Reset failed", err);
+  }
+};
+
 
   const [showProgress, setShowProgress] = useState(false);
 
@@ -87,24 +100,35 @@ const Room = () => {
   }, []);
 
   useEffect(() => {
-    const fetchHabits = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/habits/my-habits`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-        const data = await res.json();
-        setHabits(data);
-      } catch (err) {
-        console.error("Failed to fetch habits", err);
-      }
-    };
+  const fetchHabits = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/habits/my-habits`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-    fetchHabits();
-  }, []);
+      const data = await res.json();
+
+      // 🛑 If backend sends error object instead of array
+      if (!Array.isArray(data)) {
+        console.error("Habits API error:", data);
+        setHabits([]); // prevent crash
+        return;
+      }
+
+      setHabits(data);
+    } catch (err) {
+      console.error("Failed to fetch habits", err);
+      setHabits([]); // prevent crash
+    }
+  };
+
+  fetchHabits();
+}, []);
+
   //testing to see habits from backend
   useEffect(() => {
     console.log("HABITS FROM BACKEND:", habits);
@@ -120,12 +144,20 @@ const Room = () => {
       bulbCoreRef.current.intensity = bulbCoreIntensity[roomState];
     }
   }, [roomState]);
-
+useEffect(() => {
+  console.log("Selected object:", selectedObject);
+  console.log("Matched habit:", selectedHabit);
+}, [selectedObject]);
   // 🔄 Assign habits to room objects
   const plantHabit = habits.find((h) => h.type === "plant");
   const lampHabit = habits.find((h) => h.type === "lamp");
   const windowHabit = habits.find((h) => h.type === "window");
   const bookshelfHabit = habits.find((h) => h.type === "bookshelf");
+
+const selectedHabit = selectedObject
+  ? habits.find((h) => h.type === selectedObject)
+  : null;
+
 
   // Convert habit → visual state (0–4)
   const plantState = getObjectState(plantHabit);
@@ -207,9 +239,20 @@ const Room = () => {
       {showProgress && <ProgressModal onClose={() => setShowProgress(false)} />}
 
       {/* MODAL OVERLAY AFTER CLICKING */}
-      {selectedObject && (
-        <ObjectModal object={selectedObject} onClose={closeModal} />
-      )}
+    {selectedHabit && (
+  <ObjectModal
+    habit={selectedHabit}
+    onClose={closeModal}
+    onHabitUpdated={(updatedHabit) => {
+      setHabits((prev) =>
+        prev.map((h) => (h._id === updatedHabit._id ? updatedHabit : h))
+      );
+      setSelectedObject(updatedHabit.type); // keep modal consistent
+    }}
+  />
+)}
+
+
     </div>
   );
 };

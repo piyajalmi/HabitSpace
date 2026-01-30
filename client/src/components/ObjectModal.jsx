@@ -1,54 +1,117 @@
 import { useState } from "react";
 
-const ObjectModal = ({ object, onClose }) => {
-  if (!object) return null;
+const ObjectModal = ({ habit, onClose, onHabitUpdated }) => {
 
-  const HABIT_CONFIG = {
-    plant: {
-      defaultName: "Water the Plant",
-      description: "Care for your plant to help it grow every day 🌱",
-      status: "Active",
-      streak: 4,
-      lastCompleted: "Yesterday",
-      progress: 60,
-    },
-    lamp: {
-      defaultName: "Focus Session",
-      description: "Turn on focus mode and work distraction‑free 💡",
-      status: "Neutral",
-      streak: 0,
-      lastCompleted: "Yesterday",
-      progress: 20,
-    },
-    window: {
-      defaultName: "Mindful Break",
-      description: "Pause and reflect for a few minutes 🌤️",
-      status: "Missed",
-      streak: 1,
-      lastCompleted: "Yesterday",
-      progress: 35,
-    },
-    bookshelf: {
-      defaultName: "Read Books",
-      description: "Read at least a few pages today 📚",
-      status: "Flourishing",
-      streak: 12,
-      lastCompleted: "Yesterday",
-      progress: 85,
-    },
-  };
+  if (!habit) return null;
 
-  const ENCOURAGEMENT = {
-    Active: "Great consistency! Keep going 🌱",
-    Neutral: "Let’s build this habit step by step 💪",
-    Missed: "It’s okay — today is a fresh start 🌤️",
-    Flourishing: "Amazing! This habit is thriving 🚀",
-  };
+const statusMessages = {
+  neutral: "Let’s start building this habit 🌱",
+  active: "Great consistency! Keep going 💪",
+  flourishing: "Amazing! This habit is thriving 🚀",
+  missed: "It’s okay — today is a fresh start 🌤️",
+  abandoned: "You can restart anytime 💛",
+};
 
-  const habit = HABIT_CONFIG[object];
+
+
+  // const HABIT_CONFIG = {
+  //   plant: {
+  //     defaultName: "Water the Plant",
+  //     description: "Care for your plant to help it grow every day 🌱",
+  //     status: "Active",
+  //     streak: 4,
+  //     lastCompleted: "Yesterday",
+  //     progress: 60,
+  //   },
+  //   lamp: {
+  //     defaultName: "Focus Session",
+  //     description: "Turn on focus mode and work distraction‑free 💡",
+  //     status: "Neutral",
+  //     streak: 0,
+  //     lastCompleted: "Yesterday",
+  //     progress: 20,
+  //   },
+  //   window: {
+  //     defaultName: "Mindful Break",
+  //     description: "Pause and reflect for a few minutes 🌤️",
+  //     status: "Missed",
+  //     streak: 1,
+  //     lastCompleted: "Yesterday",
+  //     progress: 35,
+  //   },
+  //   bookshelf: {
+  //     defaultName: "Read Books",
+  //     description: "Read at least a few pages today 📚",
+  //     status: "Flourishing",
+  //     streak: 12,
+  //     lastCompleted: "Yesterday",
+  //     progress: 85,
+  //   },
+  // };
+
+  // const ENCOURAGEMENT = {
+  //   Active: "Great consistency! Keep going 🌱",
+  //   Neutral: "Let’s build this habit step by step 💪",
+  //   Missed: "It’s okay — today is a fresh start 🌤️",
+  //   Flourishing: "Amazing! This habit is thriving 🚀",
+  // };
+
+  // const habit = HABIT_CONFIG[object];
 
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(habit.defaultName);
+  const [name, setName] = useState(habit.habitName || "New Habit");
+
+ const saveName = async () => {
+  if (!habit?._id) {
+    console.error("Habit ID missing");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/habits/${habit._id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ habitName: name }),
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to update habit");
+    }
+
+    const updatedHabit = await res.json();
+    console.log("Updated habit:", updatedHabit);
+
+    // 🔥 Tell parent (Room) to update UI instantly
+    onHabitUpdated(updatedHabit);
+
+  } catch (err) {
+    console.error("Failed to update habit name", err);
+  }
+};
+
+
+const markAsDone = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    await fetch(`${import.meta.env.VITE_API_URL}/api/habits/${habit._id}/complete`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    window.location.reload(); // demo refresh
+  } catch (err) {
+    console.error("Failed to mark habit done", err);
+  }
+};
 
   return (
     <div style={overlayStyle} onClick={onClose}>
@@ -69,18 +132,30 @@ const ObjectModal = ({ object, onClose }) => {
           <h2 style={{ marginBottom: "4px" }}>{name}</h2>
         )}
 
-        <p style={descStyle}>{habit.description}</p>
+        <p style={descStyle}>
+  {habit.type === "plant" && "Care for your plant to help it grow 🌱"}
+  {habit.type === "lamp" && "Focus and get productive 💡"}
+  {habit.type === "window" && "Take mindful breaks 🌤️"}
+  {habit.type === "bookshelf" && "Grow by learning every day 📚"}
+</p>
 
-        <button style={editBtn} onClick={() => setIsEditing(!isEditing)}>
-          {isEditing ? "Save Name" : "Edit Habit Name"}
+
+<button
+  style={editBtn}
+  onClick={() => {
+    if (isEditing) saveName();
+    setIsEditing(!isEditing);
+  }}
+>   {isEditing ? "Save Name" : "Edit Habit Name"}
         </button>
 
         {/* STATUS */}
         <div style={sectionBox}>
-          <p style={sectionTitle}>📌 Status</p>
-          <p style={statusText}>{habit.status}</p>
-          <p style={encourageText}>{ENCOURAGEMENT[habit.status]}</p>
-        </div>
+  <p style={sectionTitle}>📌 Status</p>
+  <p style={statusText}>{habit.currentState}</p>
+  <p style={encourageText}>{statusMessages[habit.currentState]}</p>
+</div>
+
 
         {/* PROGRESS */}
         <div style={sectionBox}>
@@ -90,20 +165,26 @@ const ObjectModal = ({ object, onClose }) => {
             <div
               style={{
                 ...progressFill,
-                width: `${habit.progress}%`,
+                width: `${Math.min(habit.consecutiveDays * 10, 100)}%`,
               }}
             />
           </div>
 
           <div style={metaText}>
-            🔥 Streak: <strong>{habit.streak} days</strong>
+            🔥 Streak: <strong>{habit.consecutiveDays} days</strong>
             <br />
-            📅 Last completed: <strong>{habit.lastCompleted}</strong>
+            📅 Last completed: <strong>
+      {habit.lastCompletedDate
+        ? new Date(habit.lastCompletedDate).toDateString()
+        : "Not yet"}
+    </strong>
           </div>
         </div>
 
         {/* ACTION */}
-        <button style={primaryBtn}>Mark as Done</button>
+<button style={primaryBtn} onClick={markAsDone}>
+  Mark as Done
+</button>
 
         <p style={footerText}>Progress updates visually in the room.</p>
       </div>
