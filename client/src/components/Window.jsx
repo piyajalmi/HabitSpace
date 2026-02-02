@@ -1,26 +1,11 @@
-// import { useGLTF } from "@react-three/drei";
-// import { WINDOW_MODELS } from "../utils/modelMap";
-// import { ROOM_STATE_CONFIG } from "../utils/roomState";
-
-// const WindowModel = ({ roomState }) => {
-//   const windowState = ROOM_STATE_CONFIG[roomState]?.window;
-//   const path = WINDOW_MODELS[windowState];
-//   if (!path) return null;
-
-//   const { scene } = useGLTF(path);
-//   return <primitive object={scene} position={[0, -0.45, 0]} />;
-// };
-
-// export default WindowModel;
-
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, Html } from "@react-three/drei";
 import { useState, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { WINDOW_MODELS } from "../utils/modelMap";
 import { ROOM_STATE_CONFIG } from "../utils/roomState";
 
-const WindowModel = ({ roomState, onClick }) => {
+const WindowModel = ({ roomState, habit, onClick }) => {
   const windowState = ROOM_STATE_CONFIG[roomState]?.window;
   const path = WINDOW_MODELS[windowState];
   if (!path) return null;
@@ -30,6 +15,7 @@ const WindowModel = ({ roomState, onClick }) => {
   const modelRef = useRef();
   const [hovered, setHovered] = useState(false);
 
+  // 🌊 Subtle pulse on hover
   useFrame(({ clock }) => {
     if (!modelRef.current) return;
 
@@ -41,12 +27,19 @@ const WindowModel = ({ roomState, onClick }) => {
     }
   });
 
+  // ✨ Soft glow
   scene.traverse((child) => {
     if (child.isMesh) {
-      child.material.emissive = new THREE.Color("#bfe9ff"); // warm soft glow
+      child.material.emissive = new THREE.Color("#bfe9ff");
       child.material.emissiveIntensity = hovered ? 0.18 : 0;
     }
   });
+
+  const defaultHabitName = "Take a mindful break 🌤️";
+  const habitName =
+    habit && habit.habitName && habit.habitName.trim() !== ""
+      ? habit.habitName
+      : defaultHabitName;
 
   return (
     <group
@@ -65,6 +58,17 @@ const WindowModel = ({ roomState, onClick }) => {
         onClick?.("window");
       }}
     >
+      {/* 🪟 SPEECH BUBBLE */}
+      <Html
+        position={[-2, 1, 0]} // 👈 slightly higher than plant
+        center
+        occlude={false}
+        pointerEvents="none"
+      >
+        <div className="plant-label">{habitName}</div>
+      </Html>
+
+      {/* 🪟 Window model */}
       <primitive ref={modelRef} object={scene} />
     </group>
   );

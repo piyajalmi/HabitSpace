@@ -214,3 +214,19 @@ body,
   font-size: 12px;
   margin: 4px 0 8px 4px;
 }
+
+.plant-label {
+  padding: 4px 8px;
+  border-radius: 10px;
+  background: rgba(25, 25, 35, 0.75);
+  color: #fff;
+
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+
+  transform: translateY(-6px);
+}

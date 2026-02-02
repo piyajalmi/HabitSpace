@@ -1,35 +1,20 @@
-// import { useGLTF } from "@react-three/drei";
-// import { BOOKSHELF_MODELS } from "../utils/modelMap";
-// import { ROOM_STATE_CONFIG } from "../utils/roomState";
-
-// const Bookshelf = ({ roomState }) => {
-//   const shelfState = ROOM_STATE_CONFIG[roomState]?.bookshelf;
-//   const path = BOOKSHELF_MODELS[shelfState];
-//   if (!path) return null;
-
-//   const { scene } = useGLTF(path);
-//   return <primitive object={scene} position={[0, -0.45, 0]} />;
-// };
-
-// export default Bookshelf;
-
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, Html } from "@react-three/drei";
 import { useState, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { BOOKSHELF_MODELS } from "../utils/modelMap";
 import { ROOM_STATE_CONFIG } from "../utils/roomState";
 
-const Bookshelf = ({ roomState, onClick }) => {
+const Bookshelf = ({ roomState, habit, onClick }) => {
   const shelfState = ROOM_STATE_CONFIG[roomState]?.bookshelf;
   const path = BOOKSHELF_MODELS[shelfState];
   if (!path) return null;
 
   const { scene } = useGLTF(path);
-
   const modelRef = useRef();
   const [hovered, setHovered] = useState(false);
 
+  // 📚 Pulse animation
   useFrame(({ clock }) => {
     if (!modelRef.current) return;
 
@@ -41,12 +26,20 @@ const Bookshelf = ({ roomState, onClick }) => {
     }
   });
 
+  // ✨ Glow on hover
   scene.traverse((child) => {
     if (child.isMesh) {
-      child.material.emissive = new THREE.Color("#f5deb3"); // wood tone
+      child.material.emissive = new THREE.Color("#f5deb3");
       child.material.emissiveIntensity = hovered ? 0.15 : 0;
     }
   });
+
+  const defaultHabitName = "Hobbies ✨";
+
+  const habitName =
+    habit && habit.habitName && habit.habitName.trim() !== ""
+      ? habit.habitName
+      : defaultHabitName;
 
   return (
     <group
@@ -65,6 +58,17 @@ const Bookshelf = ({ roomState, onClick }) => {
         onClick?.("bookshelf");
       }}
     >
+      {/* 📚 Speech Bubble */}
+      <Html
+        position={[1, 1.8, 0]}
+        center
+        occlude={false}
+        pointerEvents="none"
+        style={{ pointerEvents: "none" }}
+      >
+        <div className="plant-label">{habitName}</div>
+      </Html>
+
       <primitive ref={modelRef} object={scene} />
     </group>
   );
