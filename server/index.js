@@ -7,6 +7,7 @@ const habitRoutes = require("./routes/habitRoutes");
 const summaryRoutes = require("./routes/summaryRoutes");
 const activityRoutes = require("./routes/activityRoutes");
 const connectDB = require("./config/db");
+const notificationRoutes = require("./routes/notificationRoutes");
 ;
 dotenv.config();
 
@@ -44,6 +45,7 @@ app.use("/api/auth", authLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/summary", summaryRoutes);
 app.use("/api/activity", activityRoutes);
+app.use("/api/notifications", notificationRoutes);
 // Health route
 app.get("/api/health", (req, res) => {
   res.status(200).json({

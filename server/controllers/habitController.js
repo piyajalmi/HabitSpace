@@ -2,7 +2,7 @@ const Habit = require("../models/Habit");
 const calculateHabitState = require("../utils/stateCalculator");
 const updateDailySummary = require("../utils/updateDailySummary");
 const HabitActivity = require("../models/HabitActivity");
-
+const Notification = require("../models/Notification");
 // 1️⃣ Create a habit
 const createHabit = async (req, res) => {
   try {
@@ -19,7 +19,11 @@ await HabitActivity.create({
   type: "created",
   message: `New habit started`,
 });
-
+await Notification.create({
+  userId: req.user._id,
+  message: `🌱 New habit "${habit.habitName}" was added!`,
+  type: "habit"
+});
     res.status(201).json(habit);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -96,6 +100,19 @@ const diffDays = last
   message: `${habit.habitName || habit.type} completed`,
   meta: { streak: habit.consecutiveDays },
 });
+await Notification.create({
+  userId: req.user._id,
+  message: `✅ You completed "${habit.habitName}" today!`,
+  type: "habit"
+});
+
+if (habit.consecutiveDays > 1 && habit.consecutiveDays % 5 === 0) {
+  await Notification.create({
+    userId: req.user._id,
+    message: `🔥 ${habit.consecutiveDays} day streak on "${habit.habitName}"!`,
+    type: "streak"
+  });
+}
 
 
 // 🔔 UPDATE DAILY SUMMARY (for notifications)
@@ -162,6 +179,11 @@ await HabitActivity.create({
   userId: req.user._id,
   type: "reset",
   message: "All habits were reset",
+});
+await Notification.create({
+  userId: req.user._id,
+  message: "♻️ Your habit progress was reset.",
+  type: "system"
 });
 
     res.json({ message: "All habits reset to neutral" });
