@@ -15,16 +15,16 @@ const Lamp = ({ roomState, onClick }) => {
   const lightRef = useRef();
   const [hovered, setHovered] = useState(false);
 
-  // 🔆 Glow strength by habit state
+  // 🔆 Light strength by state (used ONLY on hover)
   const STATE_LIGHT = {
     0: 0.0, // abandoned
-    1: 0.3, // missed
-    2: 0.6, // neutral
-    3: 1.2, // active
-    4: 2.0, // flourishing
+    1: 0.4, // missed
+    2: 0.8, // neutral
+    3: 1.4, // active
+    4: 2.2, // flourishing
   };
 
-  // 🎨 Fix materials ONCE (no full emissive!)
+  // 🎨 Prepare emissive ONCE (OFF by default)
   useEffect(() => {
     scene.traverse((child) => {
       if (!child.isMesh || !child.material) return;
@@ -34,30 +34,43 @@ const Lamp = ({ roomState, onClick }) => {
         : [child.material];
 
       mats.forEach((mat) => {
-        mat.emissive = new THREE.Color("#fff2cc"); // warm
-        mat.emissiveIntensity = 0.03; // 🔥 VERY LOW
+        mat.emissive = new THREE.Color("#ffd27d");
+        mat.emissiveIntensity = 0; // ❗ OFF initially
         mat.needsUpdate = true;
       });
     });
   }, [scene]);
 
-  // 🔆 Animate real light (THIS is the glow you want)
-  useFrame(() => {
-    if (!lightRef.current) return;
-
-    const base = STATE_LIGHT[roomState] ?? 0.6;
-    lightRef.current.intensity = hovered ? base * 1.25 : base;
-  });
-
-  // ✨ Hover pulse (unchanged)
+  // ✨ Hover animation + glow
   useFrame(({ clock }) => {
-    if (!modelRef.current) return;
+    // 🔆 Point light
+    if (lightRef.current) {
+      lightRef.current.intensity = hovered
+        ? (STATE_LIGHT[roomState] ?? 0.8)
+        : 0;
+    }
 
-    if (hovered) {
-      const pulse = 1 + Math.sin(clock.elapsedTime * 2) * 0.025;
-      modelRef.current.scale.set(pulse, pulse, pulse);
-    } else {
-      modelRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+    // 🔥 Emissive glow
+    scene.traverse((child) => {
+      if (!child.isMesh || !child.material) return;
+
+      const mats = Array.isArray(child.material)
+        ? child.material
+        : [child.material];
+
+      mats.forEach((mat) => {
+        mat.emissiveIntensity = hovered ? 0.25 : 0;
+      });
+    });
+
+    // 🌊 Subtle pulse
+    if (modelRef.current) {
+      if (hovered) {
+        const pulse = 1 + Math.sin(clock.elapsedTime * 2) * 0.025;
+        modelRef.current.scale.set(pulse, pulse, pulse);
+      } else {
+        modelRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.12);
+      }
     }
   });
 
@@ -78,17 +91,17 @@ const Lamp = ({ roomState, onClick }) => {
         onClick?.("lamp");
       }}
     >
-      {/* Lamp Model */}
+      {/* 🪔 Lamp Model */}
       <primitive ref={modelRef} object={scene} />
 
-      {/* 💡 REAL BULB LIGHT (THIS FIXES EVERYTHING) */}
+      {/* 💡 Light — ONLY visible on hover */}
       <pointLight
         ref={lightRef}
-        position={[0, 1.65, 0]} // inside shade
-        color="#fff2cc"
-        distance={2.5}
+        position={[0, 1.65, 0]}
+        distance={2.8}
         decay={2}
-        intensity={STATE_LIGHT[roomState] ?? 0.6}
+        intensity={0} // ❗ stays off unless hovered
+        color="#fff2cc"
       />
     </group>
   );
@@ -113,16 +126,16 @@ export default Lamp;
 //   const modelRef = useRef();
 //   const [hovered, setHovered] = useState(false);
 
-//   useFrame(({ clock }) => {
-//     if (!modelRef.current) return;
+// useFrame(({ clock }) => {
+//   if (!modelRef.current) return;
 
-//     if (hovered) {
-//       const pulse = 1 + Math.sin(clock.elapsedTime * 2) * 0.03;
-//       modelRef.current.scale.set(pulse, pulse, pulse);
-//     } else {
-//       modelRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
-//     }
-//   });
+//   if (hovered) {
+//     const pulse = 1 + Math.sin(clock.elapsedTime * 2) * 0.03;
+//     modelRef.current.scale.set(pulse, pulse, pulse);
+//   } else {
+//     modelRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+//   }
+// });
 
 //   const STATE_GLOW = {
 //     0: 0.0, // abandoned
@@ -132,15 +145,15 @@ export default Lamp;
 //     4: 0.45, // flourishing
 //   };
 
-//   // scene.traverse((child) => {
-//   //   if (child.isMesh && child.material) {
-//   //     child.material.emissive = new THREE.Color("#ffdca8");
+// scene.traverse((child) => {
+//   if (child.isMesh && child.material) {
+//     child.material.emissive = new THREE.Color("#ffdca8");
 
-//   //     const baseGlow = STATE_GLOW[roomState] ?? 0.1;
+//     const baseGlow = STATE_GLOW[roomState] ?? 0.1;
 
-//   //     child.material.emissiveIntensity = hovered ? baseGlow + 0.15 : baseGlow;
-//   //   }
-//   // });
+//     child.material.emissiveIntensity = hovered ? baseGlow + 0.15 : baseGlow;
+//   }
+// });
 
 //   useEffect(() => {
 //     scene.traverse((child) => {

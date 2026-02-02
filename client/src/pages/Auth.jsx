@@ -148,8 +148,8 @@ const [errors, setErrors] = useState({});
               {forgotMode
                 ? "Reset Your Password"
                 : mode === "signup"
-                ? "Enter Your Space"
-                : "Welcome Back"}
+                  ? "Enter Your Space"
+                  : "Welcome Back"}
             </p>
 
             {/* SIGNUP NAME */}
@@ -230,7 +230,10 @@ const [errors, setErrors] = useState({});
 
             {/* BUTTONS */}
             {forgotMode ? (
-              <button className="auth-btn primary" onClick={handleForgotPassword}>
+              <button
+                className="auth-btn primary"
+                onClick={handleForgotPassword}
+              >
                 Send Reset Link
               </button>
             ) : mode === "signup" ? (
