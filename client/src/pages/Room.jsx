@@ -16,6 +16,8 @@ import FloatingMenu from "../components/FloatingMenu";
 import ProgressModal from "../components/ProgressModal";
 import GuideModal from "../components/GuideModal";
 import ConfirmDialog from "../components/ConfirmDialog";
+import HistoryTimeline from "../components/HistoryTimeline";
+
 
 const Room = () => {
   const roomState = 0;
@@ -31,9 +33,9 @@ const Room = () => {
   const [showProgress, setShowProgress] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [lastHabitsSnapshot, setLastHabitsSnapshot] = useState(null);
-  const [showUndo, setShowUndo] = useState(false);
-
+const [lastHabitsSnapshot, setLastHabitsSnapshot] = useState(null);
+const [showUndo, setShowUndo] = useState(false);
+const [showHistory, setShowHistory] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState(null);
   const handleRequestConfirm = (type) => {
     if (type === "pause") {
@@ -66,20 +68,26 @@ const Room = () => {
       });
     }
 
-    if (type === "logout") {
-      setConfirmConfig({
-        title: "Logout?",
-        message: "You will need to log in again to access your room.",
-        confirmText: "Logout",
-        onConfirm: () => {
-          localStorage.removeItem("token");
-          localStorage.removeItem("userName");
-          navigate("/", { replace: true });
-        },
-        onCancel: () => setConfirmConfig(null),
-      });
-    }
-  };
+  if (type === "logout") {
+    setConfirmConfig({
+      title: "Logout?",
+      message: "You will need to log in again to access your room.",
+      confirmText: "Logout",
+      onConfirm: () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userName");
+        navigate("/", { replace: true });
+      },
+      onCancel: () => setConfirmConfig(null),
+    });
+  }
+};
+const defaultHabitNames = {
+  plant: "Drink 2LWater Daily 💧",
+  lamp: "Meditation 💡",
+  window: "Exposure to Sunlight for 10mins 🌤️",
+  bookshelf: "Everyday Journaling 📚",
+};
 
   // const lampMainIntensity = [0.15, 0.3, 0.55, 0.85, 1.1];
   // const bulbCoreIntensity = [0.02, 0.05, 0.08, 0.12, 0.18];
@@ -92,7 +100,7 @@ const Room = () => {
     setSelectedHabit(
       habit || {
         type: objectType,
-        habitName: "New Habit",
+        habitName: defaultHabitNames[objectType],
         currentState: "neutral",
         consecutiveDays: 0,
         lastCompletedDate: null,
@@ -320,11 +328,13 @@ const Room = () => {
         onGuide={() => setShowGuide(true)}
       /> */}
       <FloatingMenu
-        isPaused={isPaused}
-        onProgress={() => setShowProgress(true)}
-        onGuide={() => setShowGuide(true)}
-        onRequestConfirm={handleRequestConfirm}
-      />
+  isPaused={isPaused}
+  onProgress={() => setShowProgress(true)}
+  onGuide={() => setShowGuide(true)}
+  onRequestConfirm={handleRequestConfirm}
+  onHistory={() => setShowHistory(true)}
+/>
+{showHistory && <HistoryTimeline onClose={() => setShowHistory(false)} />}
 
       {/* //pause feature */}
       {isPaused && (
@@ -353,15 +363,20 @@ const Room = () => {
 
       {selectedHabit && (
         <ObjectModal
-          habit={selectedHabit}
-          isPaused={isPaused}
-          onClose={closeModal}
-          onHabitUpdated={(updatedHabit) =>
-            setHabits((prev) =>
-              prev.map((h) => (h._id === updatedHabit._id ? updatedHabit : h)),
-            )
-          }
-        />
+  habit={selectedHabit}
+  isPaused={isPaused}
+  onClose={closeModal}
+  onHabitUpdated={(updatedHabit) => {
+    // ✅ Update habits list (room visuals)
+    setHabits((prev) =>
+      prev.map((h) => (h._id === updatedHabit._id ? updatedHabit : h))
+    );
+
+    // ✅ ALSO update the modal's habit
+    setSelectedHabit(updatedHabit);
+  }}
+/>
+
       )}
       {confirmConfig && (
         <ConfirmDialog

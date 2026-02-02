@@ -8,6 +8,7 @@ const FloatingMenu = ({
   onProgress,
   onGuide,
    onRequestConfirm, 
+   onHistory,
 }) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -66,6 +67,10 @@ const logout = () => {
 
           <button style={menuBtn} onClick={handleResetClick}>
             🔄 Reset Room
+          </button>
+
+          <button style={menuBtn} onClick={onHistory}>
+            🕒 History
           </button>
 
           <button style={menuBtn} onClick={logout}>
