@@ -13,7 +13,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [message, setMessage] = useState("");
 
@@ -33,7 +33,7 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -62,7 +62,7 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -85,7 +85,7 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
       setMessage("Email and password are required");
       return;
     }
-//https://habitspace.onrender.com
+    //https://habitspace.onrender.com
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/auth/login`,
@@ -93,7 +93,7 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -129,8 +129,8 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
               {forgotMode
                 ? "Reset Your Password"
                 : mode === "signup"
-                ? "Enter Your Space"
-                : "Welcome Back"}
+                  ? "Enter Your Space"
+                  : "Welcome Back"}
             </p>
 
             {/* SIGNUP NAME */}
@@ -154,49 +154,49 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
             />
 
             {/* PASSWORD (not in forgot mode) */}
-           {!forgotMode && (
-  <div className="password-wrapper">
-    <input
-      type={showPassword ? "text" : "password"}
-      placeholder="Password"
-      className="auth-input"
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-    />
-    <span
-  className="eye-icon"
-  onClick={() => setShowPassword((prev) => !prev)}
->
-  {showPassword ? "👀" : "🙈"}
-</span>
-
-  </div>
-)}
-
+            {!forgotMode && (
+              <div className="password-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  className="auth-input"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <span
+                  className="eye-icon"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                >
+                  {showPassword ? "👀" : "🙈"}
+                </span>
+              </div>
+            )}
 
             {/* CONFIRM PASSWORD */}
-          {mode === "signup" && !forgotMode && (
-  <div className="password-wrapper">
-    <input
-      type={showConfirmPassword ? "text" : "password"}
-      placeholder="Confirm Password"
-      className="auth-input"
-      value={confirmPassword}
-      onChange={(e) => setConfirmPassword(e.target.value)}
-    />
-    <span
-  className="eye-icon"
-  onClick={() => setShowConfirmPassword((prev) => !prev)}
->
-  {showConfirmPassword ? "👀" : "🙈"}
-</span>
-  </div>
-)}
-
+            {mode === "signup" && !forgotMode && (
+              <div className="password-wrapper">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm Password"
+                  className="auth-input"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <span
+                  className="eye-icon"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                >
+                  {showConfirmPassword ? "👀" : "🙈"}
+                </span>
+              </div>
+            )}
 
             {/* BUTTONS */}
             {forgotMode ? (
-              <button className="auth-btn primary" onClick={handleForgotPassword}>
+              <button
+                className="auth-btn primary"
+                onClick={handleForgotPassword}
+              >
                 Send Reset Link
               </button>
             ) : mode === "signup" ? (

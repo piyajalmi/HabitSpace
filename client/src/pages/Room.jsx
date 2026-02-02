@@ -17,7 +17,6 @@ import ProgressModal from "../components/ProgressModal";
 import GuideModal from "../components/GuideModal";
 import ConfirmDialog from "../components/ConfirmDialog";
 
-
 const Room = () => {
   const roomState = 0;
   const userName = localStorage.getItem("userName") || "Friend";
@@ -32,55 +31,55 @@ const Room = () => {
   const [showProgress, setShowProgress] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-const [lastHabitsSnapshot, setLastHabitsSnapshot] = useState(null);
-const [showUndo, setShowUndo] = useState(false);
+  const [lastHabitsSnapshot, setLastHabitsSnapshot] = useState(null);
+  const [showUndo, setShowUndo] = useState(false);
 
   const [confirmConfig, setConfirmConfig] = useState(null);
-const handleRequestConfirm = (type) => {
-  if (type === "pause") {
-    setConfirmConfig({
-      title: isPaused ? "Resume Habits?" : "Pause Habits?",
-      message: isPaused
-        ? "Your habits will start tracking again."
-        : "Progress tracking will be temporarily frozen.",
-      confirmText: isPaused ? "Resume" : "Pause",
-      onConfirm: () => {
-        togglePause();
-        setConfirmConfig(null);
-      },
-      onCancel: () => setConfirmConfig(null),
-    });
-  }
+  const handleRequestConfirm = (type) => {
+    if (type === "pause") {
+      setConfirmConfig({
+        title: isPaused ? "Resume Habits?" : "Pause Habits?",
+        message: isPaused
+          ? "Your habits will start tracking again."
+          : "Progress tracking will be temporarily frozen.",
+        confirmText: isPaused ? "Resume" : "Pause",
+        onConfirm: () => {
+          togglePause();
+          setConfirmConfig(null);
+        },
+        onCancel: () => setConfirmConfig(null),
+      });
+    }
 
-  if (type === "reset") {
-    setConfirmConfig({
-      title: "Reset All Progress?",
-      message:
-        "This will erase ALL your habit progress. This action cannot be undone.",
-      confirmText: "Reset",
-      danger: true,
-      onConfirm: async () => {
-        await resetRoom();
-        setConfirmConfig(null);
-      },
-      onCancel: () => setConfirmConfig(null),
-    });
-  }
+    if (type === "reset") {
+      setConfirmConfig({
+        title: "Reset All Progress?",
+        message:
+          "This will erase ALL your habit progress. This action cannot be undone.",
+        confirmText: "Reset",
+        danger: true,
+        onConfirm: async () => {
+          await resetRoom();
+          setConfirmConfig(null);
+        },
+        onCancel: () => setConfirmConfig(null),
+      });
+    }
 
-  if (type === "logout") {
-    setConfirmConfig({
-      title: "Logout?",
-      message: "You will need to log in again to access your room.",
-      confirmText: "Logout",
-      onConfirm: () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("userName");
-        navigate("/", { replace: true });
-      },
-      onCancel: () => setConfirmConfig(null),
-    });
-  }
-};
+    if (type === "logout") {
+      setConfirmConfig({
+        title: "Logout?",
+        message: "You will need to log in again to access your room.",
+        confirmText: "Logout",
+        onConfirm: () => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("userName");
+          navigate("/", { replace: true });
+        },
+        onCancel: () => setConfirmConfig(null),
+      });
+    }
+  };
 
   // const lampMainIntensity = [0.15, 0.3, 0.55, 0.85, 1.1];
   // const bulbCoreIntensity = [0.02, 0.05, 0.08, 0.12, 0.18];
@@ -104,7 +103,8 @@ const handleRequestConfirm = (type) => {
 
   const closeModal = () => setSelectedHabit(null);
 
-  const togglePause = () => { //pause feature
+  const togglePause = () => {
+    //pause feature
     setIsPaused((prev) => {
       if (!prev) {
         frozenStatesRef.current = {
@@ -117,100 +117,101 @@ const handleRequestConfirm = (type) => {
       return !prev;
     });
   };
-const requestPauseToggle = () => {
-  setConfirmConfig({
-    title: isPaused ? "Resume Habits?" : "Pause Habits?",
-    message: isPaused
-      ? "Your habits will start tracking again."
-      : "Progress tracking will be temporarily frozen.",
-    confirmText: isPaused ? "Resume" : "Pause",
-    onConfirm: () => {
-      togglePause();
-      setConfirmConfig(null);
-    },
-    onCancel: () => setConfirmConfig(null),
-  });
-};
+  const requestPauseToggle = () => {
+    setConfirmConfig({
+      title: isPaused ? "Resume Habits?" : "Pause Habits?",
+      message: isPaused
+        ? "Your habits will start tracking again."
+        : "Progress tracking will be temporarily frozen.",
+      confirmText: isPaused ? "Resume" : "Pause",
+      onConfirm: () => {
+        togglePause();
+        setConfirmConfig(null);
+      },
+      onCancel: () => setConfirmConfig(null),
+    });
+  };
 
   const resetRoom = async () => {
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    // 🧠 Save current habits BEFORE reset
-    setLastHabitsSnapshot(habits);
+      // 🧠 Save current habits BEFORE reset
+      setLastHabitsSnapshot(habits);
 
-    await fetch(`${import.meta.env.VITE_API_URL}/api/habits/reset/all`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    // Refresh habits from server
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/habits/my-habits`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    const data = await res.json();
-    setHabits(Array.isArray(data) ? data : []);
-
-    // ✨ Show Undo option
-    setShowUndo(true);
-
-    // Auto hide undo after 8 seconds
-    setTimeout(() => setShowUndo(false), 8000);
-
-  } catch (err) {
-    console.error("Reset failed", err);
-  }
-};
-const undoReset = async () => {
-  if (!lastHabitsSnapshot) return;
-
-  try {
-    const token = localStorage.getItem("token");
-
-    // Restore each habit
-    for (const habit of lastHabitsSnapshot) {
-      await fetch(`${import.meta.env.VITE_API_URL}/api/habits/${habit._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          consecutiveDays: habit.consecutiveDays,
-          lastCompletedDate: habit.lastCompletedDate,
-          currentState: habit.currentState,
-        }),
+      await fetch(`${import.meta.env.VITE_API_URL}/api/habits/reset/all`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
       });
+
+      // Refresh habits from server
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/habits/my-habits`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      const data = await res.json();
+      setHabits(Array.isArray(data) ? data : []);
+
+      // ✨ Show Undo option
+      setShowUndo(true);
+
+      // Auto hide undo after 8 seconds
+      setTimeout(() => setShowUndo(false), 8000);
+    } catch (err) {
+      console.error("Reset failed", err);
     }
+  };
+  const undoReset = async () => {
+    if (!lastHabitsSnapshot) return;
 
-    setHabits(lastHabitsSnapshot);
-    setShowUndo(false);
+    try {
+      const token = localStorage.getItem("token");
 
-  } catch (err) {
-    console.error("Undo failed", err);
-  }
-};
+      // Restore each habit
+      for (const habit of lastHabitsSnapshot) {
+        await fetch(`${import.meta.env.VITE_API_URL}/api/habits/${habit._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            consecutiveDays: habit.consecutiveDays,
+            lastCompletedDate: habit.lastCompletedDate,
+            currentState: habit.currentState,
+          }),
+        });
+      }
+
+      setHabits(lastHabitsSnapshot);
+      setShowUndo(false);
+    } catch (err) {
+      console.error("Undo failed", err);
+    }
+  };
 
   const requestResetRoom = () => {
-  setConfirmConfig({
-    title: "Reset All Progress?",
-    message:
-      "This will erase ALL your habit progress. This action cannot be undone.",
-    confirmText: "Reset",
-    danger: true,
-    onConfirm: () => {
-      resetRoom();
-      setConfirmConfig(null);
-    },
-    onCancel: () => setConfirmConfig(null),
-  });
-};
-
+    setConfirmConfig({
+      title: "Reset All Progress?",
+      message:
+        "This will erase ALL your habit progress. This action cannot be undone.",
+      confirmText: "Reset",
+      danger: true,
+      onConfirm: () => {
+        resetRoom();
+        setConfirmConfig(null);
+      },
+      onCancel: () => setConfirmConfig(null),
+    });
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/");
+  }, []);
+
+  useEffect(() => {
+    document.title = "HabitSpace";
   }, []);
 
   useEffect(() => {
@@ -319,39 +320,36 @@ const undoReset = async () => {
         onGuide={() => setShowGuide(true)}
       /> */}
       <FloatingMenu
-  isPaused={isPaused}
-  onProgress={() => setShowProgress(true)}
-  onGuide={() => setShowGuide(true)}
-  onRequestConfirm={handleRequestConfirm}
-/>
-
+        isPaused={isPaused}
+        onProgress={() => setShowProgress(true)}
+        onGuide={() => setShowGuide(true)}
+        onRequestConfirm={handleRequestConfirm}
+      />
 
       {/* //pause feature */}
       {isPaused && (
-  <div style={{
-    position: "fixed",
-    top: 20,
-    left: "50%",
-    transform: "translateX(-50%)",
-    padding: "10px 18px",
-    borderRadius: "12px",
-    background: "rgba(0,0,0,0.6)",
-    color: "white",
-    fontSize: "14px",
-    zIndex: 3000,
-  }}>
-    ⏸ Habits Paused
-  </div>
-)}
-
+        <div
+          style={{
+            position: "fixed",
+            top: 20,
+            left: "50%",
+            transform: "translateX(-50%)",
+            padding: "10px 18px",
+            borderRadius: "12px",
+            background: "rgba(0,0,0,0.6)",
+            color: "white",
+            fontSize: "14px",
+            zIndex: 3000,
+          }}
+        >
+          ⏸ Habits Paused
+        </div>
+      )}
 
       {showGuide && <GuideModal onClose={() => setShowGuide(false)} />}
-{showProgress && (
-  <ProgressModal
-    onClose={() => setShowProgress(false)}
-    habits={habits}
-  />
-)}
+      {showProgress && (
+        <ProgressModal onClose={() => setShowProgress(false)} habits={habits} />
+      )}
 
       {selectedHabit && (
         <ObjectModal
@@ -366,22 +364,23 @@ const undoReset = async () => {
         />
       )}
       {confirmConfig && (
-  <ConfirmDialog
-    title={confirmConfig.title}
-    message={confirmConfig.message}
-    confirmText={confirmConfig.confirmText}
-    danger={confirmConfig.danger}
-    onConfirm={confirmConfig.onConfirm}
-    onCancel={confirmConfig.onCancel}
-  />
-)}
-{showUndo && (
-  <div style={undoToast}>
-    Room reset.
-    <button onClick={undoReset} style={undoBtn}>Undo</button>
-  </div>
-)}
-
+        <ConfirmDialog
+          title={confirmConfig.title}
+          message={confirmConfig.message}
+          confirmText={confirmConfig.confirmText}
+          danger={confirmConfig.danger}
+          onConfirm={confirmConfig.onConfirm}
+          onCancel={confirmConfig.onCancel}
+        />
+      )}
+      {showUndo && (
+        <div style={undoToast}>
+          Room reset.
+          <button onClick={undoReset} style={undoBtn}>
+            Undo
+          </button>
+        </div>
+      )}
     </div>
   );
 };
