@@ -10,6 +10,10 @@ const dailySummarySchema = new mongoose.Schema({
 
   midDayNotified: { type: Boolean, default: false },
   eveningNotified: { type: Boolean, default: false },
+
+midDaySeen: { type: Boolean, default: false },     // 👈 ADD
+eveningSeen: { type: Boolean, default: false },    // 👈 ADD
+
 });
 
 module.exports = mongoose.model("DailySummary", dailySummarySchema);
