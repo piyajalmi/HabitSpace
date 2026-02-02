@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect  } from "react";
 
 
 const ObjectModal = ({ habit, onClose, onHabitUpdated, isPaused }) => {
@@ -30,6 +30,10 @@ const ObjectModal = ({ habit, onClose, onHabitUpdated, isPaused }) => {
 const [name, setName] = useState(
   habit.habitName || defaultHabitNames[habit.type]
 );
+useEffect(() => {
+  setName(habit.habitName || defaultHabitNames[habit.type]);
+}, [habit]);
+
 const isNameValid = name.trim() !== "" && name !== defaultHabitNames[habit.type];
   const saveName = async () => {
     if (!habit?._id) return;
@@ -56,6 +60,11 @@ const isNameValid = name.trim() !== "" && name !== defaultHabitNames[habit.type]
   };
 
   const markAsDone = async () => {
+  if (!habit?._id) {
+    console.error("Habit ID missing — blocking request");
+    return;
+  }
+
   if (isPaused) {
     alert("⏸ Habits are paused. Resume to continue.");
     return;
@@ -77,12 +86,15 @@ const isNameValid = name.trim() !== "" && name !== defaultHabitNames[habit.type]
       }
     );
 
+    if (!res.ok) throw new Error("Failed request");
+
     const updatedHabit = await res.json();
     onHabitUpdated(updatedHabit);
   } catch (err) {
     console.error("Failed to mark habit done", err);
   }
 };
+
 
 const completedToday = habit.lastCompletedDate
   ? new Date(habit.lastCompletedDate).toDateString() === new Date().toDateString()

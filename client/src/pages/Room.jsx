@@ -17,6 +17,8 @@ import ProgressModal from "../components/ProgressModal";
 import GuideModal from "../components/GuideModal";
 import ConfirmDialog from "../components/ConfirmDialog";
 import HistoryTimeline from "../components/HistoryTimeline";
+import NotificationBell from "../components/NotificationBell";
+
 
 
 
@@ -319,6 +321,7 @@ const undoReset = async () => {
         />
       </Canvas>
 
+<NotificationBell />
       {/* <FloatingMenu
          onPauseToggle={requestPauseToggle}
   isPaused={isPaused}
