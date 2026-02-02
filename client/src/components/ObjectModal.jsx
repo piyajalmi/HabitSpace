@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+
 const ObjectModal = ({ habit, onClose, onHabitUpdated, isPaused }) => {
   if (!habit) return null;
 
@@ -18,9 +19,18 @@ const ObjectModal = ({ habit, onClose, onHabitUpdated, isPaused }) => {
     bookshelf: "Read a little every day 📚",
   };
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(habit.habitName || "New Habit");
+  const defaultHabitNames = {
+  plant: "Drink 2LWater Daily 💧",
+  lamp: "Meditation 💡",
+  window: "Exposure to Sunlight for 10mins 🌤️",
+  bookshelf: "Everyday Journaling 📚",
+};
 
+  const [isEditing, setIsEditing] = useState(false);
+const [name, setName] = useState(
+  habit.habitName || defaultHabitNames[habit.type]
+);
+const isNameValid = name.trim() !== "" && name !== defaultHabitNames[habit.type];
   const saveName = async () => {
     if (!habit?._id) return;
 
@@ -46,29 +56,38 @@ const ObjectModal = ({ habit, onClose, onHabitUpdated, isPaused }) => {
   };
 
   const markAsDone = async () => {
-    //paused feature
-    if (isPaused) {
+  if (isPaused) {
     alert("⏸ Habits are paused. Resume to continue.");
     return;
   }
-    try {
-      const token = localStorage.getItem("token");
 
-     const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/habits/${habit._id}/complete`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+  if (!isNameValid) {
+    alert("Please give your habit a name before marking it done.");
+    return;
+  }
 
-     
-   const updatedHabit = await res.json();
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/habits/${habit._id}/complete`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    const updatedHabit = await res.json();
     onHabitUpdated(updatedHabit);
   } catch (err) {
     console.error("Failed to mark habit done", err);
   }
 };
+
+const completedToday = habit.lastCompletedDate
+  ? new Date(habit.lastCompletedDate).toDateString() === new Date().toDateString()
+  : false;
+
 
   return (
     <div style={overlayStyle} onClick={onClose}>
@@ -133,14 +152,23 @@ const ObjectModal = ({ habit, onClose, onHabitUpdated, isPaused }) => {
         <button
   style={{
     ...primaryBtn,
-    opacity: isPaused ? 0.5 : 1,
-    cursor: isPaused ? "not-allowed" : "pointer",
+    opacity: isPaused || !isNameValid || completedToday ? 0.5 : 1,
+    cursor: isPaused || !isNameValid || completedToday ? "not-allowed" : "pointer",
   }}
   onClick={markAsDone}
-  disabled={isPaused}
+  disabled={isPaused || !isNameValid || completedToday}
 >
-  {isPaused ? "Paused" : "Mark as Done"}
+  {isPaused
+    ? "Paused"
+    : completedToday
+    ? "Already done today"
+    : !isNameValid
+    ? "Name your habit first"
+    : "Mark as Done"}
 </button>
+
+
+
 
 
         <p style={footerText}>Progress updates visually in the room.</p>

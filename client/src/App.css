@@ -209,3 +209,8 @@ body,
   user-select: none;
   z-index: 2;            /* ABOVE the input */
 }
+.error-text {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin: 4px 0 8px 4px;
+}
