@@ -16,6 +16,8 @@ import FloatingMenu from "../components/FloatingMenu";
 import ProgressModal from "../components/ProgressModal";
 import GuideModal from "../components/GuideModal";
 import ConfirmDialog from "../components/ConfirmDialog";
+import HistoryTimeline from "../components/HistoryTimeline";
+
 
 
 const Room = () => {
@@ -34,7 +36,7 @@ const Room = () => {
   const [isPaused, setIsPaused] = useState(false);
 const [lastHabitsSnapshot, setLastHabitsSnapshot] = useState(null);
 const [showUndo, setShowUndo] = useState(false);
-
+const [showHistory, setShowHistory] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState(null);
 const handleRequestConfirm = (type) => {
   if (type === "pause") {
@@ -81,6 +83,12 @@ const handleRequestConfirm = (type) => {
     });
   }
 };
+const defaultHabitNames = {
+  plant: "Drink 2LWater Daily 💧",
+  lamp: "Meditation 💡",
+  window: "Exposure to Sunlight for 10mins 🌤️",
+  bookshelf: "Everyday Journaling 📚",
+};
 
   // const lampMainIntensity = [0.15, 0.3, 0.55, 0.85, 1.1];
   // const bulbCoreIntensity = [0.02, 0.05, 0.08, 0.12, 0.18];
@@ -93,7 +101,7 @@ const handleRequestConfirm = (type) => {
     setSelectedHabit(
       habit || {
         type: objectType,
-        habitName: "New Habit",
+        habitName: defaultHabitNames[objectType],
         currentState: "neutral",
         consecutiveDays: 0,
         lastCompletedDate: null,
@@ -323,8 +331,9 @@ const undoReset = async () => {
   onProgress={() => setShowProgress(true)}
   onGuide={() => setShowGuide(true)}
   onRequestConfirm={handleRequestConfirm}
+  onHistory={() => setShowHistory(true)}
 />
-
+{showHistory && <HistoryTimeline onClose={() => setShowHistory(false)} />}
 
       {/* //pause feature */}
       {isPaused && (
@@ -355,15 +364,20 @@ const undoReset = async () => {
 
       {selectedHabit && (
         <ObjectModal
-          habit={selectedHabit}
-          isPaused={isPaused}
-          onClose={closeModal}
-          onHabitUpdated={(updatedHabit) =>
-            setHabits((prev) =>
-              prev.map((h) => (h._id === updatedHabit._id ? updatedHabit : h)),
-            )
-          }
-        />
+  habit={selectedHabit}
+  isPaused={isPaused}
+  onClose={closeModal}
+  onHabitUpdated={(updatedHabit) => {
+    // ✅ Update habits list (room visuals)
+    setHabits((prev) =>
+      prev.map((h) => (h._id === updatedHabit._id ? updatedHabit : h))
+    );
+
+    // ✅ ALSO update the modal's habit
+    setSelectedHabit(updatedHabit);
+  }}
+/>
+
       )}
       {confirmConfig && (
   <ConfirmDialog

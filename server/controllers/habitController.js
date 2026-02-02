@@ -1,6 +1,7 @@
 const Habit = require("../models/Habit");
 const calculateHabitState = require("../utils/stateCalculator");
 const updateDailySummary = require("../utils/updateDailySummary");
+const HabitActivity = require("../models/HabitActivity");
 
 // 1️⃣ Create a habit
 const createHabit = async (req, res) => {
@@ -12,6 +13,12 @@ const createHabit = async (req, res) => {
      type: type, // ✅ unified field
     });
 
+await HabitActivity.create({
+  userId: req.user._id,
+  habitId: habit._id,
+  type: "created",
+  message: `New habit started`,
+});
 
     res.status(201).json(habit);
   } catch (error) {
@@ -60,22 +67,36 @@ const habit = await Habit.findOne({
     if (!habit) {
       return res.status(404).json({ message: "Habit not found" });
     }
+const today = new Date();
+today.setHours(0, 0, 0, 0);   // normalize to start of today
 
-    const today = new Date();
-    const last = habit.lastCompletedDate;
+const last = habit.lastCompletedDate
+  ? new Date(habit.lastCompletedDate)
+  : null;
 
-    const diffDays = last
-      ? Math.floor((today - last) / (1000 * 60 * 60 * 24))
-      : null;
+if (last) last.setHours(0, 0, 0, 0); // normalize last date
+
+const diffDays = last
+  ? Math.floor((today - last) / (1000 * 60 * 60 * 24))
+  : null;
+
 
     if (diffDays === 1) habit.consecutiveDays += 1;
     else if (diffDays > 1 || diffDays === null) habit.consecutiveDays = 1;
     else if (diffDays === 0) return res.json(habit);
 
-    habit.lastCompletedDate = today;
+    habit.lastCompletedDate = new Date();
     habit.currentState = calculateHabitState(habit);
 
    await habit.save();
+   await HabitActivity.create({
+  userId: req.user._id,
+  habitId: habit._id,
+  type: "completed",
+  message: `${habit.habitName || habit.type} completed`,
+  meta: { streak: habit.consecutiveDays },
+});
+
 
 // 🔔 UPDATE DAILY SUMMARY (for notifications)
 
@@ -90,6 +111,16 @@ const completedHabits = await Habit.countDocuments({
   userId: req.user._id,
   lastCompletedDate: { $gte: startOfToday },
 });
+if (habit.consecutiveDays === 7 || habit.consecutiveDays === 30) {
+  await HabitActivity.create({
+    userId: req.user._id,
+    habitId: habit._id,
+    type: "streak",
+    message: `🔥 ${habit.consecutiveDays} day streak!`,
+    meta: { streak: habit.consecutiveDays },
+  });
+}
+
 
 // 3️⃣ Update the Daily Summary document
 await updateDailySummary(req.user._id, totalHabits, completedHabits);
@@ -127,6 +158,11 @@ exports.resetHabits = async (req, res) => {
         lastCompletedDate: null,
       }
     );
+await HabitActivity.create({
+  userId: req.user._id,
+  type: "reset",
+  message: "All habits were reset",
+});
 
     res.json({ message: "All habits reset to neutral" });
   } catch (err) {

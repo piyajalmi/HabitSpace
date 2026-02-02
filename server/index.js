@@ -5,7 +5,7 @@ const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const habitRoutes = require("./routes/habitRoutes");
 const summaryRoutes = require("./routes/summaryRoutes");
-
+const activityRoutes = require("./routes/activityRoutes");
 const connectDB = require("./config/db");
 ;
 dotenv.config();
@@ -43,7 +43,7 @@ const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/summary", summaryRoutes);
-
+app.use("/api/activity", activityRoutes);
 // Health route
 app.get("/api/health", (req, res) => {
   res.status(200).json({

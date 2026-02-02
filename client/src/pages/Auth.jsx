@@ -14,101 +14,120 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+const [errors, setErrors] = useState({});
 
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
 
+  const validate = () => {
+  const newErrors = {};
+
+  if (mode === "signup" && !name.trim()) {
+    newErrors.name = "Name is required";
+  }
+
+  if (!email.trim()) {
+    newErrors.email = "Email is required";
+  }
+
+  if (!forgotMode && !password.trim()) {
+    newErrors.password = "Password is required";
+  }
+
+  if (mode === "signup" && !forgotMode) {
+    if (!confirmPassword.trim()) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
   // 🔹 FORGOT PASSWORD
-  const handleForgotPassword = async () => {
-    if (!email) {
-      setMessage("Please enter your email");
-      return;
-    }
+ const handleForgotPassword = async () => {
+  if (!email.trim()) {
+    setErrors({ email: "Email is required" });
+    return;
+  }
 
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/auth/forgot-password`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        }
-      );
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/forgot-password`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      }
+    );
 
-      const data = await res.json();
-      setMessage(data.message || "Reset link sent to email");
-    } catch {
-      setMessage("Something went wrong");
-    }
-  };
+    const data = await res.json();
+    setMessage(data.message || "Reset link sent to email");
+  } catch {
+    setMessage("Something went wrong");
+  }
+};
+
 
   // 🔹 SIGNUP
   const handleSignup = async () => {
-    if (!name || !email || !password || !confirmPassword) {
-      setMessage("All fields are required");
-      return;
-    }
+  if (!validate()) return;
 
-    if (password !== confirmPassword) {
-      setMessage("Passwords do not match");
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/auth/signup`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("userName", data.name);
-        setMessage("Please verify your email to continue.");
-      } else {
-        setMessage(data.message || "Signup failed");
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/signup`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
       }
-    } catch {
-      setMessage("Something went wrong");
+    );
+
+    const data = await res.json();
+
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userName", data.name);
+      setMessage("Please verify your email to continue.");
+    } else {
+      setMessage(data.message || "Signup failed");
     }
-  };
+  } catch {
+    setMessage("Something went wrong");
+  }
+};
+
 
   // 🔹 LOGIN
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setMessage("Email and password are required");
-      return;
-    }
-//https://habitspace.onrender.com
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+ const handleLogin = async () => {
+  if (!validate()) return;
 
-      const data = await res.json();
-
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("userName", data.name);
-        navigate("/room");
-      } else {
-        setMessage(data.message);
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/login`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       }
-    } catch {
-      setMessage("Something went wrong");
+    );
+
+    const data = await res.json();
+
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userName", data.name);
+      navigate("/room");
+    } else {
+      setMessage(data.message);
     }
-  };
+  } catch {
+    setMessage("Something went wrong");
+  }
+};
 
   return (
     <div className="auth-page">
@@ -135,63 +154,78 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
             {/* SIGNUP NAME */}
             {mode === "signup" && !forgotMode && (
-              <input
-                type="text"
-                placeholder="Name"
-                className="auth-input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            )}
+  <>
+    <input
+      type="text"
+      placeholder="Name *"
+      className="auth-input"
+      style={{ borderColor: errors.name ? "red" : "" }}
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+    />
+    {errors.name && <p className="error-text">{errors.name}</p>}
+  </>
+)}
+
 
             {/* EMAIL */}
-            <input
-              type="email"
-              placeholder="Email"
-              className="auth-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <>
+  <input
+    type="email"
+    placeholder="Email *"
+    className="auth-input"
+    style={{ borderColor: errors.email ? "red" : "" }}
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+  />
+  {errors.email && <p className="error-text">{errors.email}</p>}
+</>
+
 
             {/* PASSWORD (not in forgot mode) */}
            {!forgotMode && (
-  <div className="password-wrapper">
-    <input
-      type={showPassword ? "text" : "password"}
-      placeholder="Password"
-      className="auth-input"
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-    />
-    <span
-  className="eye-icon"
-  onClick={() => setShowPassword((prev) => !prev)}
->
-  {showPassword ? "👀" : "🙈"}
-</span>
-
-  </div>
+  <>
+    <div className="password-wrapper">
+      <input
+        type={showPassword ? "text" : "password"}
+        placeholder="Password *"
+        className="auth-input"
+        style={{ borderColor: errors.password ? "red" : "" }}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <span className="eye-icon" onClick={() => setShowPassword(p => !p)}>
+        {showPassword ? "👀" : "🙈"}
+      </span>
+    </div>
+    {errors.password && <p className="error-text">{errors.password}</p>}
+  </>
 )}
+
 
 
             {/* CONFIRM PASSWORD */}
           {mode === "signup" && !forgotMode && (
-  <div className="password-wrapper">
-    <input
-      type={showConfirmPassword ? "text" : "password"}
-      placeholder="Confirm Password"
-      className="auth-input"
-      value={confirmPassword}
-      onChange={(e) => setConfirmPassword(e.target.value)}
-    />
-    <span
-  className="eye-icon"
-  onClick={() => setShowConfirmPassword((prev) => !prev)}
->
-  {showConfirmPassword ? "👀" : "🙈"}
-</span>
-  </div>
+  <>
+    <div className="password-wrapper">
+      <input
+        type={showConfirmPassword ? "text" : "password"}
+        placeholder="Confirm Password *"
+        className="auth-input"
+        style={{ borderColor: errors.confirmPassword ? "red" : "" }}
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+      />
+      <span className="eye-icon" onClick={() => setShowConfirmPassword(p => !p)}>
+        {showConfirmPassword ? "👀" : "🙈"}
+      </span>
+    </div>
+    {errors.confirmPassword && (
+      <p className="error-text">{errors.confirmPassword}</p>
+    )}
+  </>
 )}
+
 
 
             {/* BUTTONS */}
