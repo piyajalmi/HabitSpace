@@ -1,5 +1,4 @@
-import { useState, useEffect  } from "react";
-
+import { useState, useEffect } from "react";
 
 const ObjectModal = ({ habit, onClose, onHabitUpdated, isPaused }) => {
   if (!habit) return null;
@@ -20,21 +19,22 @@ const ObjectModal = ({ habit, onClose, onHabitUpdated, isPaused }) => {
   };
 
   const defaultHabitNames = {
-  plant: "Drink 2LWater Daily 💧",
-  lamp: "Meditation 💡",
-  window: "Exposure to Sunlight for 10mins 🌤️",
-  bookshelf: "Everyday Journaling 📚",
-};
+    plant: "Drink 2LWater Daily 💧",
+    lamp: "Meditation 💡",
+    window: "Exposure to Sunlight for 10mins 🌤️",
+    bookshelf: "Everyday Journaling 📚",
+  };
 
   const [isEditing, setIsEditing] = useState(false);
-const [name, setName] = useState(
-  habit.habitName || defaultHabitNames[habit.type]
-);
-useEffect(() => {
-  setName(habit.habitName || defaultHabitNames[habit.type]);
-}, [habit]);
+  const [name, setName] = useState(
+    habit.habitName || defaultHabitNames[habit.type],
+  );
+  useEffect(() => {
+    setName(habit.habitName || defaultHabitNames[habit.type]);
+  }, [habit]);
 
-const isNameValid = name.trim() !== "" && name !== defaultHabitNames[habit.type];
+  const isNameValid =
+    name.trim() !== "" && name !== defaultHabitNames[habit.type];
   const saveName = async () => {
     if (!habit?._id) return;
 
@@ -49,7 +49,7 @@ const isNameValid = name.trim() !== "" && name !== defaultHabitNames[habit.type]
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ habitName: name }),
-        }
+        },
       );
 
       const updatedHabit = await res.json();
@@ -60,46 +60,45 @@ const isNameValid = name.trim() !== "" && name !== defaultHabitNames[habit.type]
   };
 
   const markAsDone = async () => {
-  if (!habit?._id) {
-    console.error("Habit ID missing — blocking request");
-    return;
-  }
+    if (!habit?._id) {
+      console.error("Habit ID missing — blocking request");
+      return;
+    }
 
-  if (isPaused) {
-    alert("⏸ Habits are paused. Resume to continue.");
-    return;
-  }
+    if (isPaused) {
+      alert("⏸ Habits are paused. Resume to continue.");
+      return;
+    }
 
-  if (!isNameValid) {
-    alert("Please give your habit a name before marking it done.");
-    return;
-  }
+    if (!isNameValid) {
+      alert("Please give your habit a name before marking it done.");
+      return;
+    }
 
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/habits/${habit._id}/complete`,
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/habits/${habit._id}/complete`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
-    if (!res.ok) throw new Error("Failed request");
+      if (!res.ok) throw new Error("Failed request");
 
-    const updatedHabit = await res.json();
-    onHabitUpdated(updatedHabit);
-  } catch (err) {
-    console.error("Failed to mark habit done", err);
-  }
-};
+      const updatedHabit = await res.json();
+      onHabitUpdated(updatedHabit);
+    } catch (err) {
+      console.error("Failed to mark habit done", err);
+    }
+  };
 
-
-const completedToday = habit.lastCompletedDate
-  ? new Date(habit.lastCompletedDate).toDateString() === new Date().toDateString()
-  : false;
-
+  const completedToday = habit.lastCompletedDate
+    ? new Date(habit.lastCompletedDate).toDateString() ===
+      new Date().toDateString()
+    : false;
 
   return (
     <div style={overlayStyle} onClick={onClose}>
@@ -162,26 +161,25 @@ const completedToday = habit.lastCompletedDate
         </div>
 
         <button
-  style={{
-    ...primaryBtn,
-    opacity: isPaused || !isNameValid || completedToday ? 0.5 : 1,
-    cursor: isPaused || !isNameValid || completedToday ? "not-allowed" : "pointer",
-  }}
-  onClick={markAsDone}
-  disabled={isPaused || !isNameValid || completedToday}
->
-  {isPaused
-    ? "Paused"
-    : completedToday
-    ? "Already done today"
-    : !isNameValid
-    ? "Name your habit first"
-    : "Mark as Done"}
-</button>
-
-
-
-
+          style={{
+            ...primaryBtn,
+            opacity: isPaused || !isNameValid || completedToday ? 0.5 : 1,
+            cursor:
+              isPaused || !isNameValid || completedToday
+                ? "not-allowed"
+                : "pointer",
+          }}
+          onClick={markAsDone}
+          disabled={isPaused || !isNameValid || completedToday}
+        >
+          {isPaused
+            ? "Paused"
+            : completedToday
+              ? "Already done today"
+              : !isNameValid
+                ? "Name your habit first"
+                : "Mark as Done"}
+        </button>
 
         <p style={footerText}>Progress updates visually in the room.</p>
       </div>
@@ -236,7 +234,7 @@ const editBtn = {
   marginTop: "6px",
   background: "none",
   border: "none",
-  color: "#b58af6",
+  color: "#ded522",
   cursor: "pointer",
   fontSize: "13px",
 };
@@ -274,7 +272,7 @@ const progressTrack = {
 
 const progressFill = {
   height: "100%",
-  background: "#cc9cff",
+  background: "#ded522",
   transition: "width 0.6s ease",
   boxShadow: "0 0 8px rgba(176, 155, 223, 0.6)",
 };
@@ -308,38 +306,6 @@ const footerText = {
   marginTop: "10px",
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // import { useState } from "react";
 
 // const ObjectModal = ({ habit, onClose, onHabitUpdated }) => {
@@ -353,8 +319,6 @@ const footerText = {
 //   missed: "It’s okay — today is a fresh start 🌤️",
 //   abandoned: "You can restart anytime 💛",
 // };
-
-
 
 //   // const HABIT_CONFIG = {
 //   //   plant: {
@@ -464,7 +428,6 @@ const footerText = {
 //   }
 // };
 
-
 // const markAsDone = async () => {
 //   try {
 //     const token = localStorage.getItem("token");
@@ -505,7 +468,6 @@ const footerText = {
 //   {habit.type === "bookshelf" && "Grow by learning every day 📚"}
 // </p>
 
-
 // <button
 //   style={editBtn}
 //   onClick={() => {
@@ -520,7 +482,6 @@ const footerText = {
 //   <p style={statusText}>{habit.currentState}</p>
 //   <p style={encourageText}>{statusMessages[habit.currentState]}</p>
 // </div>
-
 
 //         <div style={sectionBox}>
 //           <p style={sectionTitle}>Weekly Progress</p>
